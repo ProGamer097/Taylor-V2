@@ -12,6 +12,10 @@ import {
     TiktokJs
 } from "../../lib/download/tiktok-js.js";
 let tiktokJs = new TiktokJs();
+import {
+    ShortLink
+} from "../../lib/tools/shortlink.js";
+const short = new ShortLink();
 
 let handler = async (m, {
     command,
@@ -43,7 +47,7 @@ let handler = async (m, {
                 `🔁 Shares: ${video?.stats?.total_share || ''}\n` +
                 `▶️ Download: ${video?.stats?.total_download || ''}\n` +
                 `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Aweme ]*`;
 
             await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || video?.videos[2] || giflogo, "", caption, m);
@@ -54,7 +58,7 @@ let handler = async (m, {
                 `🔗 ID: ${video?.video_id || ''}\n` +
                 `👤 Author: ${video?.author?.name || ''}\n` +
                 `🎵 Music: ${video?.music?.title || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Musicaldown ]*`;
 
             await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || video?.videos[2] || giflogo, "", caption, m);
@@ -65,7 +69,7 @@ let handler = async (m, {
                 `🔗 ID: ${video?.video_id || ''}\n` +
                 `👤 Author: ${video?.author?.name || ''}\n` +
                 `🎵 Music: ${video?.music?.title || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Savetik ]*`;
 
             await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || video?.videos[2] || giflogo, "", caption, m);
@@ -78,7 +82,7 @@ let handler = async (m, {
                 `❤️ Views: ${video?.total_views || ''}\n` +
                 `💬 Comments: ${video?.total_comment || ''}\n` +
                 `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Snaptik ]*`;
 
             await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || video?.videos[2] || giflogo, "", caption, m);
@@ -91,7 +95,7 @@ let handler = async (m, {
                 `❤️ Views: ${video?.total_views || ''}\n` +
                 `💬 Comments: ${video?.total_comment || ''}\n` +
                 `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Snaptikpro ]*`;
 
             await conn.sendFile(m.chat, video?.videos || video?.videos[0] || video?.videos[1] || giflogo, "", caption, m);
@@ -104,7 +108,7 @@ let handler = async (m, {
                 `❤️ Views: ${video?.total_views || ''}\n` +
                 `💬 Comments: ${video?.total_comment || ''}\n` +
                 `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Ssstik ]*`;
 
             await conn.sendFile(m.chat, video?.videos || video?.videos[0] || video?.videos[1] || giflogo, "", caption, m);
@@ -119,7 +123,7 @@ let handler = async (m, {
                 `🔁 Shares: ${video?.stats?.total_share || ''}\n` +
                 `▶️ Download: ${video?.stats?.total_download || ''}\n` +
                 `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Tikcdn ]*`;
 
             await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || giflogo, "", caption, m);
@@ -132,7 +136,7 @@ let handler = async (m, {
                 `❤️ Views: ${video?.total_views || ''}\n` +
                 `💬 Comments: ${video?.total_comment || ''}\n` +
                 `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Tikmate ]*`;
 
             await conn.sendFile(m.chat, video?.videos || video?.videos[0] || giflogo, "", caption, m);
@@ -145,7 +149,7 @@ let handler = async (m, {
                 `❤️ Views: ${video?.total_views || ''}\n` +
                 `💬 Comments: ${video?.total_comment || ''}\n` +
                 `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Tiktokdownloadr ]*`;
 
             await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || video?.videos[2] || giflogo, "", caption, m);
@@ -160,7 +164,7 @@ let handler = async (m, {
                 `🔁 Shares: ${video?.stats?.total_share || ''}\n` +
                 `▶️ Download: ${video?.stats?.total_download || ''}\n` +
                 `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Tikwm ]*`;
 
             await conn.sendFile(m.chat, video?.videos || video?.videos[0] || giflogo, "", caption, m);
@@ -173,7 +177,7 @@ let handler = async (m, {
                 `❤️ Views: ${video?.total_views || ''}\n` +
                 `💬 Comments: ${video?.total_comment || ''}\n` +
                 `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
+                `🖼️ Thumbnail URL: ${(await short.tinyurl(video?.thumbnail)) || ''}\n` +
                 `${spaces}*[ Ttdownloader ]*`;
 
             await conn.sendFile(m.chat, video?.videos || video?.videos[0] || giflogo, "", caption, m);
@@ -181,12 +185,30 @@ let handler = async (m, {
         if (versions === "v12") {
             let Scrap = await Tiktokdl(links)
             let S = Scrap?.result
+            let obj = S
             let ScrapCap = `${spaces}*「 T I K T O K 」*
 
-*📛 Author:* ${S?.author?.nickname}
-*📒 Title:* ${S?.desc}
+🆔 Aweme ID: ${obj?.aweme_id}
+🌍 Region: ${obj?.region}
+💬 Description: ${obj?.desc}
+🕒 Create Time: ${obj?.create_time}
+👤 Author:
+  🆔 UID: ${obj?.author?.uid}
+  🆔 Unique ID: ${obj?.author?.unique_id}
+  👤 Nickname: ${obj?.author?.nickname}
+  🎂 Birthday: ${obj?.author?.birthday}
+⏱ Duration: ${obj?.duration}
+⬇️ Download:
+  ▶️ Nowm: ${(await short.tinyurl(obj?.download?.nowm))}
+  ▶️ WM: ${(await short.tinyurl(obj?.download?.wm))}
+  🎵 Music: ${obj?.download?.music}
+  🎵 Music Info:
+    🆔 ID: ${obj?.download?.music_info?.id}
+    🎵 Title: ${obj?.download?.music_info?.title}
+    👤 Author: ${obj?.download?.music_info?.author}
+    🔄 Is Original: ${obj?.download?.music_info?.is_original}
 \n${spaces}*[ ${versions.toUpperCase()} ]*`
-            await conn.sendFile(m.chat, S?.download?.nowm, "", ScrapCap, m)
+            await conn.sendFile(m.chat, obj?.download?.nowm || obj?.download?.wm || obj?.download?.nowm || giflogo, "", ScrapCap, m)
         }
         if (versions === "v13") {
             let god = await axios.get("https://godownloader.com/api/tiktok-no-watermark-free?url=" + links + "&key=godownloader.com")
@@ -353,7 +375,10 @@ async function Tiktokdl(url) {
     }
 
     let valid = await getAwemeId(url);
-    if (!valid) return { status: false, result: 'Invalid URL' };
+    if (!valid) return {
+        status: false,
+        result: 'Invalid URL'
+    };
 
     let apiUrl = await API_URL(valid);
     let data = await fetch(apiUrl, {
@@ -363,7 +388,10 @@ async function Tiktokdl(url) {
         },
     });
 
-    if (!data.ok) return { status: false, result: 'Error fetching data' };
+    if (!data.ok) return {
+        status: false,
+        result: 'Error fetching data'
+    };
 
     let body = await data.json();
     let obj = body.aweme_list.find((o) => o.aweme_id === valid);
@@ -395,7 +423,10 @@ async function Tiktokdl(url) {
             },
         },
     };
-    return { status: true, result: results };
+    return {
+        status: true,
+        result: results
+    };
 }
 
 function getVideoInfo(video) {
