@@ -1,14 +1,9 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-process.env.NODE_OPTIONS = '--max-old-space-size=4096 --use-strict --no-lazy --max-http-header-size=16384 --stack-trace-limit=1000 --async-stack-traces';
+process.env.NODE_OPTIONS = '--max-old-space-size=4096 --max-http-header-size=16384 --stack-trace-limit=1000';
 process.env.NODE_MAX_LISTENERS = '100';
 process.env.NODE_ENV = 'production';
-process.env.NODE_GC_GLOBAL = 'true';
-process.env.NODE_COMPRESS_RESPONSE = 'true';
-process.env.NODE_STRICT_MODE = 'true';
-process.env.NODE_FAST_RESPONSE = 'true';
-process.env.NODE_PERF_HOOKS = 'true';
 process.env.UV_THREADPOOL_SIZE = '64';
-process.env.V8_OPTS = '--max_inlined_source_size=600000 --max_new_space_size=2048 --max_old_space_size=4096 --max_executable_size=512 --initial_old_space_size=2048 --initial_executable_size=256';
+process.env.V8_OPTS = '--max_inlined_source_size=600000 --max_old_space_size=4096 --max_executable_size=512 --initial_old_space_size=2048';
 process.env.V8_ENABLE_WEBASSEMBLY = '1';
 process.env.V8_CONTEXT_ALIGNMENT = '64';
 process.env.V8_DEPRECATION_WARNINGS = 'false';
@@ -116,7 +111,7 @@ const {
     PHONENUMBER_MCC,
     delay,
     DisconnectReason
-} = await(await import("@whiskeysockets/baileys")).default;
+} = await (await import("@whiskeysockets/baileys")).default;
 
 import inquirer from 'inquirer';
 import parsePhoneNumber from 'awesome-phonenumber';
@@ -195,11 +190,11 @@ const askQuestion = async (text) => {
             if (!/^\+?\d+$/.test(value)) console.clear();
             return /^\+?\d+$/.test(value) || 'Format nomor ponsel tidak valid. Masukkan nomor ponsel sesuai format internasional.\n(format internasional, contoh: +1234567890 atau 1234567890)';
         },
-        onClose: () => console.log('Prompt ditutup.')
+        onClose: () => console.log(chalk.yellow('Prompt ditutup.'))
     });
 
     const result = answer.input;
-    console.log('\n🎉 Berhasil untuk nomor:', result);
+    console.log(chalk.bgGreen.black('\n🎉 Berhasil untuk nomor:'), chalk.green(result));
     return result;
 };
 
@@ -244,31 +239,31 @@ global.db = new Low(dbInstance);
 global.DATABASE = global.db;
 global.loadDatabase = async function loadDatabase() {
     const db = global.db;
-    return db.READ
-        ? new Promise((resolve) => {
-              const intervalId = setInterval(async () => {
-                  if (!db.READ) {
-                      clearInterval(intervalId);
-                      resolve(db.data == null ? await global.loadDatabase() : db.data);
-                  }
-              }, 1000);
-          })
-        : db.data === null
-        ? (db.READ = true,
-          await db.read().catch(console.error),
-          (db.READ = null),
-          (db.data = {
-              users: {},
-              chats: {},
-              stats: {},
-              msgs: {},
-              sticker: {},
-              settings: {},
-              ...(db.data || {}),
-          }),
-          (db.chain = chain(db.data)),
-          null)
-        : null;
+    return db.READ ?
+        new Promise((resolve) => {
+            const intervalId = setInterval(async () => {
+                if (!db.READ) {
+                    clearInterval(intervalId);
+                    resolve(db.data == null ? await global.loadDatabase() : db.data);
+                }
+            }, 1000);
+        }) :
+        db.data === null ?
+        (db.READ = true,
+            await db.read().catch(console.error),
+            (db.READ = null),
+            (db.data = {
+                users: {},
+                chats: {},
+                stats: {},
+                msgs: {},
+                sticker: {},
+                settings: {},
+                ...(db.data || {}),
+            }),
+            (db.chain = chain(db.data)),
+            null) :
+        null;
 }
 await loadDatabase();
 
@@ -291,10 +286,10 @@ const [
 ])
 
 const logger = pino({
-	timestamp: () => `,"time":"${new Date().toJSON()}"`,
-	level: Helper.opts["pairing-code"] ? 'silent' : 'info'
+    timestamp: () => `,"time":"${new Date().toJSON()}"`,
+    level: Helper.opts["pairing-code"] ? 'silent' : 'info'
 }, stream).child({
-	class: 'baileys'
+    class: 'baileys'
 })
 
 global.store = storeSystem.makeInMemoryStore({
@@ -481,53 +476,43 @@ if (useMobile && !conn.authState.creds.registered) {
 logger.info('\n🚩 W A I T I N G\n');
 
 process.on("beforeExit", (code) => {
-    logger.info("[AntiCrash] | [BeforeExit_Logs] | [Start]");
-    logger.info(code);
-    logger.info("[AntiCrash] | [BeforeExit_Logs] | [End]");
+    logger.info("Before Exit Logs");
 });
 
-process.on("exit", (error) => {
-    logger.info("[AntiCrash] | [Exit_Logs] | [Start] ");
-    logger.info(error);
-    logger.info("[AntiCrash] | [Exit_Logs] | [End]");
+process.on("exit", (code) => {
+    logger.info("Exit Logs");
 });
 
 process.on("unhandledRejection", (reason, promise) => {
-    logger.info("[AntiCrash] | [UnhandledRejection_Logs] | [start]");
-    logger.info(reason);
-    logger.info("[AntiCrash] | [UnhandledRejection_Logs] | [end]");
+    const errorMsg = reason ? reason.stack || reason.message : "Unhandled Rejection";
+    logger.info("Unhandled Rejection Logs " + errorMsg);
 });
 
 process.on("rejectionHandled", (promise) => {
-    logger.info("[AntiCrash] | [RejectionHandled_Logs] | [Start]");
-    logger.info(promise);
-    logger.info("[AntiCrash] | [RejectionHandled_Logs] | [End]");
+    logger.info("Rejection Handled Logs");
 });
 
 process.on("uncaughtException", (err, origin) => {
-    logger.info("[AntiCrash] | [UncaughtException_Logs] | [Start]");
-    logger.info(err);
-    logger.info("[AntiCrash] | [UncaughtException_Logs] | [End]");
+    const errorMsg = err ? err.stack || err.message : "Uncaught Exception";
+    logger.info("Uncaught Exception Logs " + errorMsg);
 });
 
 process.on("uncaughtExceptionMonitor", (err, origin) => {
-    logger.info("[AntiCrash] | [UncaughtExceptionMonitor_Logs] | [Start]");
-    logger.info(err);
-    logger.info("[AntiCrash] | [UncaughtExceptionMonitor_Logs] | [End]");
+    const errorMsg = err ? err.stack || err.message : "Uncaught Exception Monitor";
+    logger.info("Uncaught Exception Monitor Logs " + errorMsg);
 });
 
 process.on("warning", (warning) => {
-    logger.info("[AntiCrash] | [Warning_Logs] | [Start]");
-    logger.info(warning);
-    logger.info("[AntiCrash] | [Warning_Logs] | [End]");
+    const warningMsg = warning ? warning.stack || warning.message : "Warning";
+    logger.info("Warning Logs " + warningMsg);
 });
 
 process.on('SIGINT', () => {
-    logger.info('☆・[AntiCrash] | [SIGINT]・☆');
+    logger.info('☆・[SIGINT]・☆');
 });
 
 process.on('SIGTERM', () => {
-    logger.info('☆・[AntiCrash] | [SIGTERM]・☆');
+    logger.info('☆・[SIGTERM]・☆');
 });
 
 if (opts['cleartmp']) {
@@ -623,7 +608,7 @@ async function connectionUpdate(update) {
     else if (isOnline === false) logger.error(chalk.bold.red('Status Mati'));
 
     if (receivedPendingNotifications) logger.warn(chalk.bold.yellow('Menunggu Pesan Baru'));
-    
+
     if ((!pairingCode && !useMobile || useQr) && qr !== 0 && qr !== undefined && connection === 'close') {
         if (!useMobile) logger.error(chalk.bold.yellow(`\n🚩 Koneksi ditutup, harap hapus folder ${authFolder} dan pindai ulang kode QR`));
         else logger.info(chalk.bold.yellow(`\n🚩 Pindai kode QR ini, kode QR akan kedaluwarsa dalam 60 detik.`));
@@ -730,48 +715,47 @@ const spinner = ora({
 });
 
 const runTasks = async () => {
-    const tasks = [
-    {
-        func: _quickTest,
-        message: 'Quick Test',
-        style: chalk.bgBlue.bold
-    },
-    {
-        func: writeDatabase,
-        message: 'Write database',
-        style: chalk.bgBlue.bold
-    },
-    {
-        func: filesInit,
-        message: 'Initializing files',
-        style: chalk.bgBlue.bold
-    },
-    {
-        func: libFiles,
-        message: 'Loading library files',
-        style: chalk.bgBlue.bold
-    },
-    {
-        func: watchFiles,
-        message: 'Watching files',
-        style: chalk.bgBlue.bold
-    },
-    {
-        func: () => watch(path.resolve(directoryName, 'plugins'), global.reload),
-        message: 'Watching plugins',
-        style: chalk.bgBlue.bold
-    },
-    opts['cleartmp'] ? {
-        func: clearTmp,
-        message: 'Clearing temporary files',
-        style: chalk.bgBlue.bold
-    } : null,
-    opts['clearsession'] ? {
-        func: clearSessions,
-        message: 'Clearing sessions',
-        style: chalk.bgBlue.bold
-    } : null
-].filter(task => task !== null);
+    const tasks = [{
+            func: _quickTest,
+            message: 'Quick Test',
+            style: chalk.bgBlue.bold
+        },
+        {
+            func: writeDatabase,
+            message: 'Write database',
+            style: chalk.bgBlue.bold
+        },
+        {
+            func: filesInit,
+            message: 'Initializing files',
+            style: chalk.bgBlue.bold
+        },
+        {
+            func: libFiles,
+            message: 'Loading library files',
+            style: chalk.bgBlue.bold
+        },
+        {
+            func: watchFiles,
+            message: 'Watching files',
+            style: chalk.bgBlue.bold
+        },
+        {
+            func: () => watch(path.resolve(directoryName, 'plugins'), global.reload),
+            message: 'Watching plugins',
+            style: chalk.bgBlue.bold
+        },
+        opts['cleartmp'] ? {
+            func: clearTmp,
+            message: 'Clearing temporary files',
+            style: chalk.bgBlue.bold
+        } : null,
+        opts['clearsession'] ? {
+            func: clearSessions,
+            message: 'Clearing sessions',
+            style: chalk.bgBlue.bold
+        } : null
+    ].filter(task => task !== null);
 
     const promises = tasks.map(async ({
         func,
