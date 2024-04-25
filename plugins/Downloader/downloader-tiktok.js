@@ -33,170 +33,170 @@ let handler = async (m, {
 
         if (!links) return m.reply("Input query link");
 
-        if (versions == "v1") {
+        if (versions === "v1") {
             let video = await tiktokJs.aweme(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `❤️ Views: ${video.stats.total_views || ''}\n` +
-                `💬 Comments: ${video.stats.total_comment || ''}\n` +
-                `🔁 Shares: ${video.stats.total_share || ''}\n` +
-                `▶️ Download: ${video.stats.total_download || ''}\n` +
-                `🎵 Music: ${video.music.title} - ${video.music.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `❤️ Views: ${video?.stats?.total_views || ''}\n` +
+                `💬 Comments: ${video?.stats?.total_comment || ''}\n` +
+                `🔁 Shares: ${video?.stats?.total_share || ''}\n` +
+                `▶️ Download: ${video?.stats?.total_download || ''}\n` +
+                `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Aweme ]*`;
 
-            await conn.sendFile(m.chat, video.videos[0] || video.videos[1] || video.videos[2] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || video?.videos[2] || giflogo, "", caption, m);
         }
-        if (versions == "v2") {
+        if (versions === "v2") {
             let video = await tiktokJs.musicaldown(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `🎵 Music: ${video.music.title || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `🎵 Music: ${video?.music?.title || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Musicaldown ]*`;
 
-            await conn.sendFile(m.chat, video.videos[0] || video.videos[1] || video.videos[2] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || video?.videos[2] || giflogo, "", caption, m);
         }
-        if (versions == "v3") {
+        if (versions === "v3") {
             let video = await tiktokJs.savetik(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `🎵 Music: ${video.music.title || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `🎵 Music: ${video?.music?.title || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Savetik ]*`;
 
-            await conn.sendFile(m.chat, video.videos[0] || video.videos[1] || video.videos[2] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || video?.videos[2] || giflogo, "", caption, m);
         }
-        if (versions == "v4") {
+        if (versions === "v4") {
             let video = await tiktokJs.snaptik(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `❤️ Views: ${video.total_views || ''}\n` +
-                `💬 Comments: ${video.total_comment || ''}\n` +
-                `🎵 Music: ${video.music.title} - ${video.music.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `❤️ Views: ${video?.total_views || ''}\n` +
+                `💬 Comments: ${video?.total_comment || ''}\n` +
+                `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Snaptik ]*`;
 
-            await conn.sendFile(m.chat, video.videos[0] || video.videos[1] || video.videos[2] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || video?.videos[2] || giflogo, "", caption, m);
         }
-        if (versions == "v5") {
+        if (versions === "v5") {
             let video = await tiktokJs.snaptikpro(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `❤️ Views: ${video.total_views || ''}\n` +
-                `💬 Comments: ${video.total_comment || ''}\n` +
-                `🎵 Music: ${video.music.title} - ${video.music.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `❤️ Views: ${video?.total_views || ''}\n` +
+                `💬 Comments: ${video?.total_comment || ''}\n` +
+                `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Snaptikpro ]*`;
 
-            await conn.sendFile(m.chat, video.videos || video.videos[0] || video.videos[1] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos || video?.videos[0] || video?.videos[1] || giflogo, "", caption, m);
         }
-        if (versions == "v6") {
+        if (versions === "v6") {
             let video = await tiktokJs.ssstik(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `❤️ Views: ${video.total_views || ''}\n` +
-                `💬 Comments: ${video.total_comment || ''}\n` +
-                `🎵 Music: ${video.music.title} - ${video.music.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `❤️ Views: ${video?.total_views || ''}\n` +
+                `💬 Comments: ${video?.total_comment || ''}\n` +
+                `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Ssstik ]*`;
 
-            await conn.sendFile(m.chat, video.videos || video.videos[0] || video.videos[1] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos || video?.videos[0] || video?.videos[1] || giflogo, "", caption, m);
         }
-        if (versions == "v7") {
+        if (versions === "v7") {
             let video = await tiktokJs.tikcdn(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `❤️ Views: ${video.stats.total_views || ''}\n` +
-                `💬 Comments: ${video.stats.total_comment || ''}\n` +
-                `🔁 Shares: ${video.stats.total_share || ''}\n` +
-                `▶️ Download: ${video.stats.total_download || ''}\n` +
-                `🎵 Music: ${video.music.title} - ${video.music.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `❤️ Views: ${video?.stats?.total_views || ''}\n` +
+                `💬 Comments: ${video?.stats?.total_comment || ''}\n` +
+                `🔁 Shares: ${video?.stats?.total_share || ''}\n` +
+                `▶️ Download: ${video?.stats?.total_download || ''}\n` +
+                `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Tikcdn ]*`;
 
-            await conn.sendFile(m.chat, video.videos[0] || video.videos[1] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || giflogo, "", caption, m);
         }
-        if (versions == "v8") {
+        if (versions === "v8") {
             let video = await tiktokJs.tikmate(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `❤️ Views: ${video.total_views || ''}\n` +
-                `💬 Comments: ${video.total_comment || ''}\n` +
-                `🎵 Music: ${video.music.title} - ${video.music.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `❤️ Views: ${video?.total_views || ''}\n` +
+                `💬 Comments: ${video?.total_comment || ''}\n` +
+                `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Tikmate ]*`;
 
-            await conn.sendFile(m.chat, video.videos || video.videos[0] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos || video?.videos[0] || giflogo, "", caption, m);
         }
-        if (versions == "v9") {
+        if (versions === "v9") {
             let video = await tiktokJs.tiktokdownloadr(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `❤️ Views: ${video.total_views || ''}\n` +
-                `💬 Comments: ${video.total_comment || ''}\n` +
-                `🎵 Music: ${video.music.title} - ${video.music.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `❤️ Views: ${video?.total_views || ''}\n` +
+                `💬 Comments: ${video?.total_comment || ''}\n` +
+                `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Tiktokdownloadr ]*`;
 
-            await conn.sendFile(m.chat, video.videos[0] || video.videos[1] || video.videos[2] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos[0] || video?.videos[1] || video?.videos[2] || giflogo, "", caption, m);
         }
-        if (versions == "v10") {
+        if (versions === "v10") {
             let video = await tiktokJs.tikwm(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `❤️ Views: ${video.stats.total_views || ''}\n` +
-                `💬 Comments: ${video.stats.total_comment || ''}\n` +
-                `🔁 Shares: ${video.stats.total_share || ''}\n` +
-                `▶️ Download: ${video.stats.total_download || ''}\n` +
-                `🎵 Music: ${video.music.title} - ${video.music.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `❤️ Views: ${video?.stats?.total_views || ''}\n` +
+                `💬 Comments: ${video?.stats?.total_comment || ''}\n` +
+                `🔁 Shares: ${video?.stats?.total_share || ''}\n` +
+                `▶️ Download: ${video?.stats?.total_download || ''}\n` +
+                `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Tikwm ]*`;
 
-            await conn.sendFile(m.chat, video.videos || video.videos[0] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos || video?.videos[0] || giflogo, "", caption, m);
         }
-        if (versions == "v11") {
+        if (versions === "v11") {
             let video = await tiktokJs.ttdownloader(links);
             let caption = `${spaces}*[ T I K T O K ]*\n` +
-                `🔗 ID: ${video.video_id || ''}\n` +
-                `👤 Author: ${video.author.name || ''}\n` +
-                `❤️ Views: ${video.total_views || ''}\n` +
-                `💬 Comments: ${video.total_comment || ''}\n` +
-                `🎵 Music: ${video.music.title} - ${video.music.author || ''}\n` +
-                `🖼️ Thumbnail URL: ${video.thumbnail || ''}\n` +
+                `🔗 ID: ${video?.video_id || ''}\n` +
+                `👤 Author: ${video?.author?.name || ''}\n` +
+                `❤️ Views: ${video?.total_views || ''}\n` +
+                `💬 Comments: ${video?.total_comment || ''}\n` +
+                `🎵 Music: ${video?.music?.title} - ${video?.music?.author || ''}\n` +
+                `🖼️ Thumbnail URL: ${video?.thumbnail || ''}\n` +
                 `${spaces}*[ Ttdownloader ]*`;
 
-            await conn.sendFile(m.chat, video.videos || video.videos[0] || giflogo, "", caption, m);
+            await conn.sendFile(m.chat, video?.videos || video?.videos[0] || giflogo, "", caption, m);
         }
-        if (versions == "v12") {
+        if (versions === "v12") {
             let Scrap = await Tiktokdl(links)
-            let S = Scrap.result
+            let S = Scrap?.result
             let ScrapCap = `${spaces}*「 T I K T O K 」*
 
-*📛 Author:* ${S.author.nickname}
-*📒 Title:* ${S.desc}
+*📛 Author:* ${S?.author?.nickname}
+*📒 Title:* ${S?.desc}
 \n${spaces}*[ ${versions.toUpperCase()} ]*`
-            await conn.sendFile(m.chat, S.download.nowm, "", ScrapCap, m)
+            await conn.sendFile(m.chat, S?.download?.nowm, "", ScrapCap, m)
         }
-        if (versions == "v13") {
+        if (versions === "v13") {
             let god = await axios.get("https://godownloader.com/api/tiktok-no-watermark-free?url=" + links + "&key=godownloader.com")
             let GoCap = `${spaces}*[ T I K T O K ]*
 
-*Desc:* ${god.data.desc}
+*Desc:* ${god?.data?.desc}
 \n${spaces}*[ ${versions.toUpperCase()} ]*`
-            await conn.sendFile(m.chat, god.data.video_no_watermark, "", GoCap, m)
+            await conn.sendFile(m.chat, god?.data?.video_no_watermark, "", GoCap, m)
         }
-        if (versions == "v14") {
+        if (versions === "v14") {
             let spinner = ora({
                 text: 'Downloading...',
                 spinner: 'moon',
@@ -223,14 +223,14 @@ ${getVideoInfo(video)}
                 console.error(e);
             }
         }
-        if (versions == "v15") {
+        if (versions === "v15") {
             let videoX = await Tiktok(links);
 
             let XctCap = `${spaces}*[ T I K T O K ]*
 
 ${getUserProfileInfo(videoX)}
 \n${spaces}*[ ${versions.toUpperCase()} ]*`
-            await conn.sendFile(m.chat, videoX.download.nowm || giflogo, "", XctCap, m)
+            await conn.sendFile(m.chat, videoX?.download?.nowm || giflogo, "", XctCap, m)
         }
 
     } catch (e) {
@@ -243,104 +243,171 @@ handler.tags = ["downloader"]
 handler.command = /^t(ik(tok(dl)?|dl)?|t(dl)?)$/i;
 export default handler
 
-//@xct007/tiktok-scraper
 async function Tiktokdl(url) {
-    //async function tiktokdl(url) {
-    try {
-        function API_URL(aweme) {
-            return `https://api16-core-c-useast1a.tiktokv.com/aweme/v1/feed/?aweme_id=${aweme}&version_name=1.0.4&version_code=104&build_number=1.0.4&manifest_version_code=104&update_version_code=104&openudid=4dsoq34x808ocz3m&uuid=6320652962800978&_rticket=1671193816600&ts=1671193816&device_brand=POCO&device_type=surya&device_platform=android&resolution=1080*2179&dpi=440&os_version=12&os_api=31&carrier_region=US&sys_region=US%C2%AEion=US&app_name=TikMate%20Downloader&app_language=en&language=en&timezone_name=Western%20Indonesia%20Time&timezone_offset=25200&channel=googleplay&ac=wifi&mcc_mnc=&is_my_cn=0&aid=1180&ssmix=a&as=a1qwert123&cp=cbfhckdckkde1`
-        }
-        async function getAwemeId(url) {
-            // any :/
-            let result
-            let Konto1 = /video\/([\d|\+]+)?\/?/
-            let valid = url.match(Konto1)
-            if (valid) {
-                return valid[1]
-            } else {
-                try {
-                    let data = await got
-                        .get(url, {
-                            headers: {
-                                "Accept-Encoding": "deflate",
-                            },
-                            maxRedirects: 0,
-                        })
-                        .catch((e) => e.response.headers.location)
-                    let _url = data
-                    let _valid = _url.match(Konto1)
-                    if (_valid) {
-                        result = _valid[1]
-                    }
-                } catch (e) {
-                    // console.log(e)
-                    result = false
-                }
+    async function API_URL(videoId) {
+        const API = {
+            AID: 0,
+            APP_NAME: 'musical_ly',
+            HOSTNAME: 'api22-normal-c-alisg.tiktokv.com',
+            API_V: 'v1',
+            VERSION_WORKING: false,
+
+            FORMATS: [
+                'play_addr',
+                'play_addr_h264',
+                'play_addr_bytevc1',
+                'download_addr'
+            ],
+
+            VERSIONS: [
+                ['26.1.3', '260103'],
+                ['26.1.2', '260102'],
+                ['26.1.1', '260101'],
+                ['25.6.2', '250602'],
+                ['24.1.5', '240105']
+            ],
+
+            constructApiQuery: async (videoId, appVersion, manifestAppVersion) => {
+                const fetchType = 'feed';
+                const ts = Math.round(Date.now() / 1000);
+
+                const parameters = {
+                    'aweme_id': videoId,
+                    'version_name': appVersion,
+                    'version_code': manifestAppVersion,
+                    'build_number': appVersion,
+                    'manifest_version_code': manifestAppVersion,
+                    'update_version_code': manifestAppVersion,
+                    'openudid': ranGen('0123456789abcdef', 16),
+                    'uuid': ranGen('0123456789', 16),
+                    '_rticket': ts * 1000,
+                    'ts': ts,
+                    'device_brand': 'Google',
+                    'device_type': 'ASUS_Z01QD',
+                    'device_platform': 'android',
+                    "iid": "7318518857994389254",
+                    "device_id": "7318517321748022790",
+                    'resolution': '1080*1920',
+                    'dpi': 420,
+                    'os_version': '10',
+                    'os_api': '29',
+                    'carrier_region': 'US',
+                    'sys_region': 'US',
+                    'region': 'US',
+                    'app_name': API.APP_NAME,
+                    'app_language': 'en',
+                    'language': 'en',
+                    'timezone_name': 'America/New_York',
+                    'timezone_offset': '-14400',
+                    'channel': 'googleplay',
+                    'ac': 'wifi',
+                    'mcc_mnc': '310260',
+                    'is_my_cn': 0,
+                    'aid': API.AID,
+                    'ssmix': 'a',
+                    'as': 'a1qwert123',
+                    'cp': 'cbfhckdckkde1'
+                };
+
+                const queryParams = Object.keys(parameters).map((key, index) => `${index > 0 ? '&' : '?'}${key}=${parameters[key]}`).join('');
+
+                const apiUrl = `https://${API.HOSTNAME}/aweme/${API.API_V}/${fetchType}/${queryParams}`;
+
+                return apiUrl;
             }
-            return result
+        };
+        return await API.constructApiQuery(videoId, API.VERSIONS[0][0], API.VERSIONS[0][1]);
+    }
+
+    function ranGen(charset, length) {
+        let result = '';
+        const charactersLength = charset.length;
+        for (let i = 0; i < length; i++) {
+            result += charset.charAt(Math.floor(Math.random() * charactersLength));
         }
-        let valid = await getAwemeId(url)
-        //if (!valid) return false // result = false
-        let data = await got
-            .get(API_URL(valid), {
-                headers: {
-                    "Accept-Encoding": "deflate",
-                    "User-Agent": "okhttp/3.14.9",
-                },
-            })
-            .catch((e) => e.response)
-        //if (!data) return false // result = false
-        let body = JSON.parse(data.body)
-        let obj = body.aweme_list.find((o) => o.aweme_id === valid)
-        let results = {
-            aweme_id: obj.aweme_id,
-            region: obj.region,
-            desc: obj.desc,
-            create_time: obj.create_time,
-            author: {
-                uid: obj.author.uid,
-                unique_id: obj.author.unique_id,
-                nickname: obj.author.nickname,
-                birthday: obj.author.birthday,
-            },
-            duration: obj.music.duration,
-            download: {
-                nowm: obj.video.play_addr.url_list[0],
-                wm: obj.video.download_addr.url_list[0],
-                music: obj.music.play_url.url_list[0],
-                music_info: {
-                    id: obj.music.id,
-                    title: obj.music.title,
-                    author: obj.music.author,
-                    is_original: obj.music.is_original,
-                    cover_hd: obj.music.cover_hd.url_list[0],
-                    cover_large: obj.music.cover_large.url_list[0],
-                    cover_medium: obj.music.cover_medium.url_list[0],
-                },
-            },
-        }
-        return {
-            status: true,
-            result: results //data.body //valid
-        }
-    } catch (e) {
-        return {
-            status: false,
-            result: e
+        return result;
+    }
+
+    async function getAwemeId(url) {
+        let Konto1 = /video\/([\d|\+]+)?\/?/;
+        let valid = url.match(Konto1);
+        if (valid) {
+            return valid[1];
+        } else {
+            try {
+                let data = await fetch(url, {
+                    headers: {
+                        "Accept-Encoding": "deflate",
+                    },
+                    redirect: 'manual',
+                });
+                let _url = data.headers.get('location');
+                let _valid = _url.match(Konto1);
+                if (_valid) {
+                    return _valid[1];
+                }
+            } catch (e) {
+                return false;
+            }
         }
     }
+
+    let valid = await getAwemeId(url);
+    if (!valid) return { status: false, result: 'Invalid URL' };
+
+    let apiUrl = await API_URL(valid);
+    let data = await fetch(apiUrl, {
+        headers: {
+            "Accept-Encoding": "deflate",
+            "User-Agent": "okhttp/3.14.9",
+        },
+    });
+
+    if (!data.ok) return { status: false, result: 'Error fetching data' };
+
+    let body = await data.json();
+    let obj = body.aweme_list.find((o) => o.aweme_id === valid);
+
+    let results = {
+        aweme_id: obj?.aweme_id || '',
+        region: obj?.region || '',
+        desc: obj?.desc || '',
+        create_time: obj?.create_time || '',
+        author: {
+            uid: obj?.author?.uid || '',
+            unique_id: obj?.author?.unique_id || '',
+            nickname: obj?.author?.nickname || '',
+            birthday: obj?.author?.birthday || '',
+        },
+        duration: obj?.music?.duration || '',
+        download: {
+            nowm: obj?.video?.play_addr?.url_list[0] || '',
+            wm: obj?.video?.download_addr?.url_list[0] || '',
+            music: obj?.music?.play_url?.url_list[0] || '',
+            music_info: {
+                id: obj?.music?.id || '',
+                title: obj?.music?.title || '',
+                author: obj?.music?.author || '',
+                is_original: obj?.music?.is_original || '',
+                cover_hd: obj?.music?.cover_hd?.url_list[0] || '',
+                cover_large: obj?.music?.cover_large?.url_list[0] || '',
+                cover_medium: obj?.music?.cover_medium.url_list[0] || '',
+            },
+        },
+    };
+    return { status: true, result: results };
 }
 
 function getVideoInfo(video) {
-    return `Video description: ${video.description || ''}\n` +
-        `🔗 URL: ${video.url || ''}\n` +
-        `👤 Author: ${video.author || ''}\n` +
-        `❤️ Likes: ${video.likes || ''}\n` +
-        `💬 Comments: ${video.comments || ''}\n` +
-        `🔁 Shares: ${video.shares || ''}\n` +
-        `▶️ Plays: ${video.playCount || ''}\n` +
-        `🎵 Music: ${video.music.name} - ${video.music.author || ''}\n` +
-        `🖼️ Thumbnail URL: ${video.previewImageUrl}`;
+    return `Video description: ${video?.description || ''}\n` +
+        `🔗 URL: ${video?.url || ''}\n` +
+        `👤 Author: ${video?.author || ''}\n` +
+        `❤️ Likes: ${video?.likes || ''}\n` +
+        `💬 Comments: ${video?.comments || ''}\n` +
+        `🔁 Shares: ${video?.shares || ''}\n` +
+        `▶️ Plays: ${video?.playCount || ''}\n` +
+        `🎵 Music: ${video?.music?.name} - ${video?.music?.author || ''}\n` +
+        `🖼️ Thumbnail URL: ${video?.previewImageUrl}`;
 }
 
 function getEmojiCount(count) {
@@ -353,10 +420,10 @@ function getUserProfileInfo(tiktokData) {
     let stats = tiktokData.statistics;
 
     return `User Profile:
-🆔 Unique ID: ${user.uid}
-👤 Nickname: ${user.nickname}
-💬 Description: ${tiktokData.desc}
-👥 Comments: ${getEmojiCount(stats.comment_count)}
-👍 Likes: ${getEmojiCount(stats.digg_count)}
-🎵 Music: ${tiktokData.download.music_info.title}`;
+🆔 Unique ID: ${user?.uid || ''}
+👤 Nickname: ${user?.nickname || ''}
+💬 Description: ${tiktokData?.desc || ''}
+👥 Comments: ${getEmojiCount(stats?.comment_count) || ''}
+👍 Likes: ${getEmojiCount(stats?.digg_count) || ''}
+🎵 Music: ${tiktokData?.download?.music_info?.title || ''}`;
 }
