@@ -21,8 +21,7 @@ let handler = async (m, {
         length: 7
     }, (_, index) => `v${index + 1}`);
     let [links, versions] = text.split(" ");
-    let aca = ['v4', 'v7'];
-    versions = versions ? versions : aca[Math.floor(Math.random() * aca.length)];
+    versions = versions ? versions : lister[Math.floor(Math.random() * lister.length)];
 
     if (!lister.includes(versions.toLowerCase())) return m.reply("*Example:*\n" + usedPrefix + command + " link v2\n\n*Pilih type yg ada*\n" + lister.map((v, index) => "  ○ " + v.toUpperCase()).join("\n"));
 
@@ -33,72 +32,72 @@ let handler = async (m, {
         if (versions === "v1") {
             let results = await instagram.v1(links);
             let caption = `*[ I N S T A G R A M - ${versions.toUpperCase()} ]*`;
-            let out = results[0].url;
+            let out = results[0]?.url;
             if (out) return conn.sendFile(m.chat, out, "", caption, m);
         }
         if (versions === "v2") {
             let response = await axios.get("https://fantox001-scrappy-api.vercel.app/instadl?url=" + links);
-            let results = response.data;
+            let results = response?.data;
             let caption = `*[ I N S T A G R A M - ${versions.toUpperCase()} ]*`;
-            let out = results.videoUrl;
+            let out = results?.videoUrl;
             if (out) return conn.sendFile(m.chat, out, "", caption, m);
         }
         if (versions === "v3") {
             let getIgdl = new Download();
             let results = await getIgdl.igdl(links);
-            if (results.media) {
+            if (results?.media) {
                 let caption = `*[ I N S T A G R A M - ${versions.toUpperCase()} ]*\n\n`;
                 for (let i = 0; i < results.media.length; i++) {
-                    let media = results.media[i];
+                    let media = results?.media[i];
                     if (media) await conn.sendFile(m.chat, media, "", `${caption}`, m);
                 }
             } else console.log("Invalid data format in results");
         }
         if (versions === "v4") {
             let results = await ig(links);
-            if (results.status && results.result && results.result.medias) {
+            if (results?.status && results?.result && results?.result?.medias) {
                 let caption = `*[ I N S T A G R A M - ${versions.toUpperCase()} ]*\n\n`;
                 for (let i = 0; i < results.result.medias.length; i++) {
-                    let info = results.result;
-                    let media = results.result.medias[i];
-                    let out = media.url;
-                    let mediaCaption = `Author: ${info.author}\nTitle: ${info.title}\nType: ${info.type}\nQuality: ${media.quality}\nExtension: ${media.extension}`;
+                    let info = results?.result;
+                    let media = results?.result?.medias[i];
+                    let out = media?.url;
+                    let mediaCaption = `Author: ${info?.author}\nTitle: ${info?.title}\nType: ${info?.type}\nQuality: ${media?.quality}\nExtension: ${media?.extension}`;
                     if (out) await conn.sendFile(m.chat, out, "", `${caption}${mediaCaption}`, m);
                 }
             } else console.log("Invalid data format in results");
         }
         if (versions === "v5") {
             let results = await saveig(links);
-            if (results.medias) {
+            if (results?.medias) {
                 let caption = `*[ I N S T A G R A M - ${versions.toUpperCase()} ]*\n\n`;
                 for (let i = 0; i < results.medias.length; i++) {
-                    let media = results.medias[i];
-                    let out = media.url;
-                    let mediaCaption = `Type: ${media.type}\nQuality: ${media.quality}`;
+                    let media = results?.medias[i];
+                    let out = media?.url;
+                    let mediaCaption = `Type: ${media?.type}\nQuality: ${media?.quality}`;
                     if (out) await conn.sendFile(m.chat, out, "", `${caption}${mediaCaption}`, m);
                 }
             } else console.log("Invalid data format in results");
         }
         if (versions === "v6") {
             let results = await instagramdl(links);
-            if (results.medias) {
+            if (results?.medias) {
                 let caption = `*[ I N S T A G R A M - ${versions.toUpperCase()} ]*\n\n`;
                 for (let i = 0; i < results.medias.length; i++) {
-                    let media = results.medias[i];
-                    let out = media.url;
-                    let mediaCaption = `Title: ${results.title}\nQuality: ${media.quality}\nExtension: ${media.extension}\nSize: ${media.formattedSize}`;
+                    let media = results?.medias[i];
+                    let out = media?.url;
+                    let mediaCaption = `Title: ${results?.title}\nQuality: ${media?.quality}\nExtension: ${media?.extension}\nSize: ${media?.formattedSize}`;
                     if (out) await conn.sendFile(m.chat, out, "", `${caption}${mediaCaption}`, m);
                 }
             } else console.log("Invalid data format in results");
         }
         if (versions === "v7") {
             let results = await instagramGetUrl(links);
-            if (results.insBos) {
+            if (results?.insBos) {
                 let caption = `*[ I N S T A G R A M - ${versions.toUpperCase()} ]*\n\n`;
                 for (let i = 0; i < results.insBos.length; i++) {
-                    let media = results.insBos[i];
-                    let out = media.url;
-                    let mediaCaption = `Author: ${media.author}\nType: ${media.type}\nId: ${media.id}`;
+                    let media = results?.insBos[i];
+                    let out = media?.url;
+                    let mediaCaption = `Author: ${media?.author}\nType: ${media?.type}\nId: ${media?.id}`;
                     if (out) await conn.sendFile(m.chat, out, "", `${caption}${mediaCaption}`, m);
                 }
             } else console.log("Invalid data format in results");
@@ -117,7 +116,7 @@ export default handler;
 async function ig(url) {
     try {
         const a = await axios.get("https://116.203.129.92/");
-        const _a = cheerio.load(a.data);
+        const _a = cheerio.load(a?.data);
         const csrf = _a('meta[name="csrf-token"]').attr("content");
         const b = await axios.post(
             "https://116.203.129.92/getData",
@@ -151,7 +150,7 @@ async function saveig(q) {
             t: "media",
             lang: "id"
         }));
-        const html = response.data.data;
+        const html = response.data?.data;
         const $ = cheerio.load(html);
         const medias = $('ul.download-box li').map((index, element) => {
             const $thumb = $(element).find('.download-items__thumb img');
@@ -199,7 +198,7 @@ async function instagramGetUrl(url_media) {
                 "Sec-Fetch-Site": "same-site",
             },
         });
-        return response.data.result;
+        return response.data?.result;
     } catch (err) {
         throw err;
     }
