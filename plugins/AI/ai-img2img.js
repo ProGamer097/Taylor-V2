@@ -1,12 +1,12 @@
 import {
     Prodia
 } from "prodia.js";
-const apiKey = "df165bab-9893-4f02-92bf-e8b09592b43a";
-const prodia = new Prodia(apiKey);
-
+const apiKey = ["dc80a8a4-0b98-4d54-b3e4-b7c797bc2527"];
+const prodia = Prodia(apiKey.getRandom());
 import uploadFile from '../../lib/uploadFile.js'
 import uploadImage from '../../lib/uploadImage.js'
 import fetch from 'node-fetch'
+
 let handler = async (m, {
     command,
     usedPrefix,
@@ -14,7 +14,9 @@ let handler = async (m, {
     text,
     args
 }) => {
-    const input_data = await prodia.getSDmodels();
+    const input_data = await prodia.getModels();
+    const samplr = await prodia.getSamplers();
+    const styler = await getModels();
 
     let q = m.quoted ? m.quoted : m
     let mime = (q.msg || q).mimetype || ''
@@ -36,12 +38,14 @@ let handler = async (m, {
         if (isNaN(urutan)) return m.reply("Input query!\n*Example:*\n.img2img [nomor]|[query]\n\n*Pilih angka yg ada*\n" + data.map((item, index) => `*${index + 1}.* ${item.title}`).join("\n"))
         if (urutan > data.length) return m.reply("Input query!\n*Example:*\n.img2img [nomor]|[query]\n\n*Pilih angka yg ada*\n" + data.map((item, index) => `*${index + 1}.* ${item.title}`).join("\n"))
         let out = data[urutan - 1].id
-
+        let imgdata = media.toString('base64')
         const generateImageParams = {
             imageUrl: link,
+            imageData: imgdata,
             prompt: encodeURIComponent(tema),
             model: out,
-            sampler: "DPM++ SDE Karras",
+            sampler: samplr.getRandom(),
+            style_preset: (styler[10]?.enum).getRandom(),
             cfg_scale: 9,
             steps: 30,
             width: 512,
@@ -75,15 +79,25 @@ handler.command = /^(img2img)$/i
 export default handler
 
 async function generateImage(params) {
-    const generate = await prodia.transformImage(params);
-
+    const generate = await prodia.transform(params);
     while (generate.status !== "succeeded" && generate.status !== "failed") {
         await new Promise((resolve) => setTimeout(resolve, 250));
-
         const job = await prodia.getJob(generate.job);
-
         if (job.status === "succeeded") {
             return job;
         }
     }
+}
+
+async function getModels() {
+  try {
+    const response = await fetch('https://docs.prodia.com/reference/transform');
+    const html = await response.text();
+    const jsonRegex = /{&quot;[^{}]*}/g;
+    const allJSON = html.match(jsonRegex)?.map(match => JSON.parse(match.replace(/&quot;/g, '"'))) || [];
+    const data = allJSON.filter(obj => obj.enum !== undefined);
+    return data;
+  } catch (error) {
+    throw new Error('Error fetching or filtering JSON:', error);
+  }
 }

@@ -3,10 +3,9 @@ import {
 } from "prodia.js";
 const apiKey = ["dc80a8a4-0b98-4d54-b3e4-b7c797bc2527"];
 const prodia = Prodia(apiKey.getRandom());
-import uploadFile from '../../lib/uploadFile.js'
-import uploadImage from '../../lib/uploadImage.js'
-import fetch from 'node-fetch'
-
+const isUrl = (text) => {
+    return text.match(new RegExp(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)(jpe?g|png)/, 'gi'))
+}
 let handler = async (m, {
     command,
     usedPrefix,
@@ -14,24 +13,21 @@ let handler = async (m, {
     text,
     args
 }) => {
-const samplr = await getModels();
-    let q = m.quoted ? m.quoted : m
-    let mime = (q.msg || q).mimetype || ''
-    if (!mime) throw 'No media found'
-    let media = await q.download()
-    let isTele = /image\/(png|jpe?g|gif)|video\/mp4/.test(mime)
-    let link = await (isTele ? uploadImage : uploadFile)(media)
+
+    let [urutan, tema] = text.split(" ")
+    if (!tema) return m.reply("Input query!\n*Example:*\n.faceswap [url] [url]")
 
     await m.reply(wait)
     try {
 
+        if (!isUrl(urutan) || !isUrl(tema)) return m.reply("Input query!\n*Example:*\n.faceswap [url] [url]")
+        
         const generateImageParams = {
-            imageUrl: link,
-            imageData: media.toString('base64'),
-            model: (samplr[9]?.enum).getRandom(),
-            resize: 4
+            sourceUrl: urutan,
+            targetUrl: tema
         };
         const openAIResponse = await generateImage(generateImageParams);
+
         if (openAIResponse) {
             const result = openAIResponse;
             const tag = `@${m.sender.split('@')[0]}`;
@@ -40,7 +36,7 @@ const samplr = await getModels();
                 image: {
                     url: result.imageUrl
                 },
-                caption: `Nih effect *upscale* nya\nRequest by: ${tag}`,
+                caption: `Nih effect *${command}* nya\nRequest by: ${tag}`,
                 mentions: [m.sender]
             }, {
                 quoted: m
@@ -52,13 +48,13 @@ const samplr = await getModels();
         await m.reply(eror)
     }
 }
-handler.help = ["tohdx *[Reply image]*"]
+handler.help = ["faceswap *[url] [url]*"]
 handler.tags = ["ai"]
-handler.command = /^(tohdx)$/i
+handler.command = /^(faceswap)$/i
 export default handler
 
 async function generateImage(params) {
-    const generate = await prodia.upscale(params);
+    const generate = await prodia.faceSwap(params);
     while (generate.status !== "succeeded" && generate.status !== "failed") {
         await new Promise((resolve) => setTimeout(resolve, 250));
         const job = await prodia.getJob(generate.job);
@@ -66,17 +62,4 @@ async function generateImage(params) {
             return job;
         }
     }
-}
-
-async function getModels() {
-  try {
-    const response = await fetch('https://docs.prodia.com/reference/upscale');
-    const html = await response.text();
-    const jsonRegex = /{&quot;[^{}]*}/g;
-    const allJSON = html.match(jsonRegex)?.map(match => JSON.parse(match.replace(/&quot;/g, '"'))) || [];
-    const data = allJSON.filter(obj => obj.enum !== undefined);
-    return data;
-  } catch (error) {
-    throw new Error('Error fetching or filtering JSON:', error);
-  }
 }

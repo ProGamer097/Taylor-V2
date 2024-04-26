@@ -1,12 +1,12 @@
 import {
     Prodia
 } from "prodia.js";
-const apiKey = "df165bab-9893-4f02-92bf-e8b09592b43a";
-const prodia = new Prodia(apiKey);
-
+const apiKey = ["dc80a8a4-0b98-4d54-b3e4-b7c797bc2527"];
+const prodia = Prodia(apiKey.getRandom());
 import uploadFile from '../../lib/uploadFile.js'
 import uploadImage from '../../lib/uploadImage.js'
 import fetch from 'node-fetch'
+
 let handler = async (m, {
     command,
     usedPrefix,
@@ -14,19 +14,9 @@ let handler = async (m, {
     text,
     args
 }) => {
-    const input_data = [
-        "control_v11p_sd15_canny [d14c016b]",
-        "control_v11p_sd15_openpose [cab727d4]",
-        "control_v11p_sd15_softedge [a8575a2a]",
-        "control_v11p_sd15_scribble [d4ba51ff]"
-    ];
-
-    const input_dataa = [
-        "canny",
-        "openpose",
-        "softedge",
-        "scribble"
-    ];
+const samplr = await getModels();
+    const input_data = samplr[6]?.enum;
+    const input_dataa = samplr[7]?.enum;
 
     let q = m.quoted ? m.quoted : m
     let mime = (q.msg || q).mimetype || ''
@@ -50,11 +40,14 @@ let handler = async (m, {
         let out = data[urutan - 1].id
         let outt = input_dataa[urutan - 1]
 
+        let imgdata = media.toString('base64')
         const generateImageParams = {
+            imageUrl: link,
+            imageData: imgdata,
             controlnet_model: out,
             controlnet_module: outt,
-            imageUrl: link,
             prompt: encodeURIComponent(tema),
+            style_preset: (samplr[10]?.enum).getRandom(),
             cfg_scale: 10
         };
         const openAIResponse = await generateImage(generateImageParams);
@@ -86,14 +79,24 @@ export default handler
 
 async function generateImage(params) {
     const generate = await prodia.controlNet(params);
-
     while (generate.status !== "succeeded" && generate.status !== "failed") {
         await new Promise((resolve) => setTimeout(resolve, 250));
-
         const job = await prodia.getJob(generate.job);
-
         if (job.status === "succeeded") {
             return job;
         }
     }
+}
+
+async function getModels() {
+  try {
+    const response = await fetch('https://docs.prodia.com/reference/controlnet');
+    const html = await response.text();
+    const jsonRegex = /{&quot;[^{}]*}/g;
+    const allJSON = html.match(jsonRegex)?.map(match => JSON.parse(match.replace(/&quot;/g, '"'))) || [];
+    const data = allJSON.filter(obj => obj.enum !== undefined);
+    return data;
+  } catch (error) {
+    throw new Error('Error fetching or filtering JSON:', error);
+  }
 }

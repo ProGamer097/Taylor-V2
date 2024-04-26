@@ -1,8 +1,9 @@
 import {
     Prodia
 } from "prodia.js";
-const apiKey = "df165bab-9893-4f02-92bf-e8b09592b43a";
-const prodia = new Prodia(apiKey);
+const apiKey = ["dc80a8a4-0b98-4d54-b3e4-b7c797bc2527"];
+const prodia = Prodia(apiKey.getRandom());
+import fetch from 'node-fetch'
 
 let handler = async (m, {
     command,
@@ -11,8 +12,10 @@ let handler = async (m, {
     text,
     args
 }) => {
-    const input_data = await prodia.getSDXLmodels();
-
+    const input_data = await prodia.getSDXLModels();
+    const samplr = await prodia.getSDXLSamplers();
+    const styler = await getModels();
+    
     let [urutan, tema] = text.split("|")
     if (!tema) return m.reply("Input query!\n*Example:*\n.sdxl [nomor]|[query]")
 
@@ -30,7 +33,8 @@ let handler = async (m, {
         const generateImageParams = {
             model: out,
             prompt: encodeURIComponent(tema),
-            sampler: "DPM++ 2M Karras",
+            sampler: samplr.getRandom(),
+            style_preset: (styler[10]?.enum).getRandom(),
             cfg_scale: 9,
             steps: 30
         };
@@ -62,15 +66,25 @@ handler.command = /^(sdxl)$/i
 export default handler
 
 async function generateImage(params) {
-    const generate = await prodia.SDXL(params);
-
+    const generate = await prodia.generateImageSDXL(params);
     while (generate.status !== "succeeded" && generate.status !== "failed") {
         await new Promise((resolve) => setTimeout(resolve, 250));
-
         const job = await prodia.getJob(generate.job);
-
         if (job.status === "succeeded") {
             return job;
         }
     }
+}
+
+async function getModels() {
+  try {
+    const response = await fetch('https://docs.prodia.com/reference/sdxl-generate');
+    const html = await response.text();
+    const jsonRegex = /{&quot;[^{}]*}/g;
+    const allJSON = html.match(jsonRegex)?.map(match => JSON.parse(match.replace(/&quot;/g, '"'))) || [];
+    const data = allJSON.filter(obj => obj.enum !== undefined);
+    return data;
+  } catch (error) {
+    throw new Error('Error fetching or filtering JSON:', error);
+  }
 }
