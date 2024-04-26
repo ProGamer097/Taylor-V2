@@ -1,14 +1,23 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-process.env.NODE_OPTIONS = '--max-old-space-size=4096 --max-http-header-size=16384 --stack-trace-limit=1000';
-process.env.NODE_MAX_LISTENERS = '100';
-process.env.NODE_ENV = 'production';
-process.env.UV_THREADPOOL_SIZE = '64';
-process.env.V8_OPTS = '--max_inlined_source_size=600000 --max_old_space_size=4096 --max_executable_size=512 --initial_old_space_size=2048';
-process.env.V8_ENABLE_WEBASSEMBLY = '1';
-process.env.V8_CONTEXT_ALIGNMENT = '64';
-process.env.V8_DEPRECATION_WARNINGS = 'false';
-process.env.V8_TURBOFAN_BACKEND = '1';
-process.env.V8_TURBOFAN_INTRINSICS = '1';
+const { env } = process;
+env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+env.NODE_ENV = 'production';
+env.NODE_MAX_LISTENERS = '100';
+env.UV_THREADPOOL_SIZE = '64';
+env.V8_ENABLE_WEBASSEMBLY = '1';
+env.V8_CONTEXT_ALIGNMENT = '64';
+env.V8_DEPRECATION_WARNINGS = 'false';
+env.V8_TURBOFAN_BACKEND = '1';
+env.V8_TURBOFAN_INTRINSICS = '1';
+env.NODE_OPTIONS = '--max-old-space-size=4096';
+env.V8_OPTS = '--max_inlined_source_size=600000 --max_old_space_size=4096 --max_executable_size=512 --initial_old_space_size=2048';
+env.NODE_OPTIONS += ' --max-http-header-size=16384';
+env.NODE_OPTIONS += ' --openssl-legacy-provider';
+env.NODE_OPTIONS += ' --dns-result-order=ipv4first';
+env.NODE_OPTIONS += ' --no-node-snapshot';
+env.NODE_OPTIONS += ' --preserve-symlinks';
+env.NODE_OPTIONS += ' --expose-gc';
+env.V8_OPTIONS = '--harmony';
+env.V8_FLAGS = '--max-old-space-size=4096';
 
 import {
     loadConfig
@@ -40,8 +49,10 @@ import {
     existsSync,
     mkdirSync,
     readFileSync,
+    writeFileSync,
     rmSync,
-    watch
+    watch,
+    createWriteStream
 } from 'fs';
 import fs from 'fs/promises';
 import yargs from 'yargs';
@@ -52,9 +63,6 @@ import lodash from 'lodash';
 import ora from 'ora';
 import chalk from 'chalk';
 import syntaxerror from 'syntax-error';
-import {
-    tmpdir
-} from 'os';
 import chokidar from 'chokidar';
 import {
     format,
@@ -67,6 +75,7 @@ import {
 } from "@hapi/boom";
 import pino from 'pino';
 import pretty from 'pino-pretty';
+import fetch from 'node-fetch';
 const stream = pretty({
     colorize: true,
     levelFirst: false,
@@ -194,7 +203,7 @@ const askQuestion = async (text) => {
     });
 
     const result = answer.input;
-    console.log(chalk.bgGreen.black('\n🎉 Berhasil untuk nomor:'), chalk.green(result));
+    console.log(chalk.bgGreen.black('\n🎉 Berhasil untuk nomor:'), chalk.yellow(result));
     return result;
 };
 
@@ -205,7 +214,7 @@ const msgRetryCounterCache = new NodeCache()
 const {
     chain
 } = lodash
-const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
+const PORT = env.PORT || env.SERVER_PORT || 3000
 
 protoType();
 serialize();
@@ -285,10 +294,7 @@ const [
     storeSystem.useMultiFileAuthState(authFolder)
 ])
 
-const logger = pino({
-    timestamp: () => `,"time":"${new Date().toJSON()}"`,
-    level: Helper.opts["pairing-code"] ? 'silent' : 'info'
-}, stream).child({
+const logger = pino({ level: 'info' }, stream).child({
     class: 'baileys'
 })
 
@@ -475,44 +481,23 @@ if (useMobile && !conn.authState.creds.registered) {
 
 logger.info('\n🚩 W A I T I N G\n');
 
-process.on("beforeExit", (code) => {
-    logger.info("Before Exit Logs");
+process.on('unhandledRejection', (reason, promise) => {
+  const errorMsg = reason ? reason.stack || reason.message : 'Unhandled Rejection';
+  logger.error({ event: 'unhandledRejection', promise }, errorMsg);
 });
 
-process.on("exit", (code) => {
-    logger.info("Exit Logs");
+process.on('rejectionHandled', (promise) => {
+  logger.info({ event: 'rejectionHandled', promise }, 'Rejection handled');
 });
 
-process.on("unhandledRejection", (reason, promise) => {
-    const errorMsg = reason ? reason.stack || reason.message : "Unhandled Rejection";
-    logger.info("Unhandled Rejection Logs " + errorMsg);
+process.on('uncaughtException', (err, origin) => {
+  const errorMsg = err ? err.stack || err.message : 'Uncaught Exception';
+  logger.error({ event: 'uncaughtException', origin }, errorMsg);
 });
 
-process.on("rejectionHandled", (promise) => {
-    logger.info("Rejection Handled Logs");
-});
-
-process.on("uncaughtException", (err, origin) => {
-    const errorMsg = err ? err.stack || err.message : "Uncaught Exception";
-    logger.info("Uncaught Exception Logs " + errorMsg);
-});
-
-process.on("uncaughtExceptionMonitor", (err, origin) => {
-    const errorMsg = err ? err.stack || err.message : "Uncaught Exception Monitor";
-    logger.info("Uncaught Exception Monitor Logs " + errorMsg);
-});
-
-process.on("warning", (warning) => {
-    const warningMsg = warning ? warning.stack || warning.message : "Warning";
-    logger.info("Warning Logs " + warningMsg);
-});
-
-process.on('SIGINT', () => {
-    logger.info('☆・[SIGINT]・☆');
-});
-
-process.on('SIGTERM', () => {
-    logger.info('☆・[SIGTERM]・☆');
+process.on('uncaughtExceptionMonitor', (err, origin) => {
+  const errorMsg = err ? err.stack || err.message : 'Uncaught Exception Monitor';
+  logger.error({ event: 'uncaughtExceptionMonitor', origin }, errorMsg);
 });
 
 if (opts['cleartmp']) {
@@ -530,7 +515,7 @@ async function writeDatabase() {
     } catch (error) {
         console.error(error);
     } finally {
-        setTimeout(writeDatabase, 15 * 60 * 1000);
+        setTimeout(writeDatabase, 30 * 60000);
     }
 };
 
@@ -754,7 +739,12 @@ const runTasks = async () => {
             func: clearSessions,
             message: 'Clearing sessions',
             style: chalk.bgBlue.bold
-        } : null
+        } : null,
+        {
+            func: createCertificate,
+            message: 'Create Certs',
+            style: chalk.bgBlue.bold
+        },
     ].filter(task => task !== null);
 
     const promises = tasks.map(async ({
@@ -882,7 +872,6 @@ async function filesInit() {
         logger.error(`\nError sending message: ${e}`);
     }
 }
-
 
 global.lib = {};
 
@@ -1064,7 +1053,7 @@ async function clearTmp() {
         console.error(`Error in clearTmp: ${err.message}`);
         return [];
     } finally {
-        setTimeout(clearTmp, 36 * 60 * 1000);
+        setTimeout(clearTmp, 1 * 3600000);
     }
 }
 
@@ -1090,7 +1079,7 @@ async function clearSessions(folder) {
         console.error(`Error in Clear Sessions: ${err.message}`);
         return [];
     } finally {
-        setTimeout(() => clearSessions(folder), 65 * 60 * 1000);
+        setTimeout(() => clearSessions(folder), 1 * 86400000);
     }
 }
 
@@ -1136,3 +1125,17 @@ async function _quickTest() {
     if (s.ffmpeg && !s.ffmpegWebp)(conn?.logger || console).warn('Stickers may not animated without libwebp on ffmpeg (--enable-libwebp while compiling ffmpeg)');
     if (!s.convert && !s.magick && !s.gm)(conn?.logger || console).warn('Stickers may not work without imagemagick if libwebp on ffmpeg doesnt isntalled (pkg install imagemagick)');
 }
+
+async function createCertificate() {
+  const certDir = path.join(process.cwd(), 'ssl', 'certs');
+  const certFilePath = path.join(certDir, 'lets-encrypt-x3-cross-signed.pem');
+  existsSync(certDir) || mkdirSync(certDir, { recursive: true });
+  try {
+    const response = await fetch('https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem.txt');
+    const text = await response.text();
+    writeFileSync(certFilePath, text);
+    env.NODE_EXTRA_CA_CERTS = certFilePath;
+  } catch (error) {
+    console.error('Error downloading certificate:', error);
+  }
+};
