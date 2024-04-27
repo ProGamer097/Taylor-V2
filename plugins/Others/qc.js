@@ -11,7 +11,16 @@ const upload = new Uploader();
 
 async function Quotly(data) {
     try {
-        const response = await axios.post('http://quotly.netorare.codes/generate', data, {
+        const response = await axios.post('https://quote.btch.bz/generate', data, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return Buffer.from(response?.data?.result?.image, 'base64') || null;
+    } catch (e) {
+    console.error('Quotly Error:', e);
+        try {
+        const response = await axios.post('https://quotly.netorare.codes/generate', data, {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -20,6 +29,7 @@ async function Quotly(data) {
     } catch (e) {
         console.error('Quotly Error:', e);
         return null;
+    }
     }
 }
 

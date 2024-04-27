@@ -2,15 +2,16 @@ let handler = async (m, {
     conn,
     usedPrefix,
     command,
-    text
+    args
 }) => {
-    if (!text) throw `Example : ${usedPrefix + command} celana`
+    let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    if (!text) return m.reply(`Input query text!\n*Example:*\n- *${usedPrefix + command}* hello`)
     conn.hartatahta = conn.hartatahta ? conn.hartatahta : {}
     if (m.chat in conn.hartatahta) throw 'Masih ada yang sedang membuat\nTeks Harta Tahta\ndi chat ini... tunggu sampai selesai'
     else conn.hartatahta[m.chat] = true
     m.reply('_Sedang membuat..._\n*Mohon tunggu sekitar 1 menit*')
     try {
-        let img = await ht(text ? text : ':v')
+        let img = await ht(text);
         await conn.sendMessage(m.chat, {
             image: img,
             caption: '*© Nurutomo*\nMade with FFmpeg'

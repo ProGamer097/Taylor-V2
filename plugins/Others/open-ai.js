@@ -4,10 +4,10 @@ let handler = async (m, {
     conn,
     args,
     usedPrefix,
-    text,
     command
 }) => {
-    if (!text) return m.reply("Input query\nExample: .ai hello")
+    let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    if (!text) return m.reply(`Input query text!\n*Example:*\n- *${usedPrefix + command}* hello`)
     try {
         const result = await CleanDx(text);
         await m.reply(result);
@@ -23,23 +23,14 @@ export default handler
 async function CleanDx(your_qus) {
     try {
         let linkaiList = [];
-        let linkaiId = Array.from({
-            length: 21
-        }, () => Math.random().toString(36)[2]).join('');
         let Baseurl = "https://vipcleandx.xyz/";
         linkaiList.push({
-            "content": your_qus,
-            "role": "user",
-            "nickname": "",
-            "time": `${(new Date()).getHours().toString().padStart(2, '0')}:${(new Date()).getMinutes().toString().padStart(2, '0')}:${(new Date()).getSeconds().toString().padStart(2, '0')}`,
-            "isMe": true
+            content: your_qus,
+            role: "user"
         });
         linkaiList.push({
-            "content": "",
-            "role": "assistant",
-            "nickname": "AI",
-            "time": `${(new Date()).getHours().toString().padStart(2, '0')}:${(new Date()).getMinutes().toString().padStart(2, '0')}:${(new Date()).getSeconds().toString().padStart(2, '0')}`,
-            "isMe": false
+            content: "Anda asisten AI, harap menggunakan bahasa Indonesia.",
+            role: "system"
         });
         if (linkaiList.length > 10) linkaiList.shift();
         let response = await fetch(Baseurl + "v1/chat/gpt/", {
@@ -53,13 +44,7 @@ async function CleanDx(your_qus) {
                 "accept": "application/json, text/plain, */*"
             },
             body: JSON.stringify({
-                "list": linkaiList,
-                "id": linkaiId,
-                "title": your_qus,
-                "prompt": "",
-                "temperature": 0.5,
-                "models": "0",
-                "continuous": true
+                list: linkaiList
             })
         });
         return await response.text();
