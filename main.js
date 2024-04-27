@@ -13,15 +13,6 @@ Object.assign(process.env, {
     V8_OPTIONS: `--max_old_space_size=${Math.floor(os.totalmem() / (1024 * 1024) * 0.8)} --initial_old_space_size=${Math.floor(os.totalmem() / (1024 * 1024) * 0.4)} --max_executable_size=512 --harmony`
 });
 
-process
-  .on('unhandledRejection', (err, promise) => logger.error({ err, promise }, 'unhandledRejection'))
-  .on('rejectionHandled', (promise) => logger.info({ promise }, 'rejectionHandled'))
-  .on('uncaughtException', (err, origin) => logger.error({ err, origin }, 'uncaughtException'))
-  .on('unhandledPromiseRejection', (reason, promise) => logger.error({ reason, promise }, 'unhandledPromiseRejection'))
-  .on('SIGTERM', () => logger.info('Received SIGTERM signal'))
-  .on('SIGINT', () => logger.info('Received SIGINT signal'))
-  .on('SIGUSR1', () => logger.info('Received SIGUSR1 signal'));
-
 import {
     loadConfig
 } from './config.js';
@@ -298,6 +289,15 @@ const [
 ])
 
 const logger = pino({ level: 'info' }, stream);
+
+process
+  .on('unhandledRejection', (err, promise) => logger.error({ err, promise }, 'unhandledRejection'))
+  .on('rejectionHandled', (promise) => logger.info({ promise }, 'rejectionHandled'))
+  .on('uncaughtException', (err, origin) => logger.error({ err, origin }, 'uncaughtException'))
+  .on('unhandledPromiseRejection', (reason, promise) => logger.error({ reason, promise }, 'unhandledPromiseRejection'))
+  .on('SIGTERM', () => logger.info('Received SIGTERM signal'))
+  .on('SIGINT', () => logger.info('Received SIGINT signal'))
+  .on('SIGUSR1', () => logger.info('Received SIGUSR1 signal'));
 
 global.store = storeSystem.makeInMemoryStore({
     logger
