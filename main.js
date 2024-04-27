@@ -1,23 +1,26 @@
-const { env } = process;
-env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-env.NODE_ENV = 'production';
-env.NODE_MAX_LISTENERS = '100';
-env.UV_THREADPOOL_SIZE = '64';
-env.V8_ENABLE_WEBASSEMBLY = '1';
-env.V8_CONTEXT_ALIGNMENT = '64';
-env.V8_DEPRECATION_WARNINGS = 'false';
-env.V8_TURBOFAN_BACKEND = '1';
-env.V8_TURBOFAN_INTRINSICS = '1';
-env.NODE_OPTIONS = '--max-old-space-size=4096';
-env.V8_OPTS = '--max_inlined_source_size=600000 --max_old_space_size=4096 --max_executable_size=512 --initial_old_space_size=2048';
-env.NODE_OPTIONS += ' --max-http-header-size=16384';
-env.NODE_OPTIONS += ' --openssl-legacy-provider';
-env.NODE_OPTIONS += ' --dns-result-order=ipv4first';
-env.NODE_OPTIONS += ' --no-node-snapshot';
-env.NODE_OPTIONS += ' --preserve-symlinks';
-env.NODE_OPTIONS += ' --expose-gc';
-env.V8_OPTIONS = '--harmony';
-env.V8_FLAGS = '--max-old-space-size=4096';
+import os from 'os';
+
+Object.assign(process.env, {
+    NODE_TLS_REJECT_UNAUTHORIZED: '0',
+    NODE_ENV: 'production',
+    V8_ENABLE_WEBASSEMBLY: '1',
+    V8_CONTEXT_ALIGNMENT: '64',
+    V8_DEPRECATION_WARNINGS: 'false',
+    V8_TURBOFAN_BACKEND: '1',
+    V8_TURBOFAN_INTRINSICS: '1',
+    UV_THREADPOOL_SIZE: Math.floor(os.totalmem() / (1024 * 1024)) <= 1024 ? '4' : (Math.floor(os.totalmem() / (1024 * 1024)) <= 2048 ? '8' : (os.cpus().length * 2).toString()),
+    NODE_OPTIONS: `--max-old-space-size=${Math.floor(os.totalmem() / (1024 * 1024) * 0.8)} --abort-on-uncaught-exception --max-http-header-size=8192 --stack-trace-limit=50 --max-semi-space-size=256 --max-executable-size=512 --strict --harmony --experimental-modules`,
+    V8_OPTIONS: `--max_old_space_size=${Math.floor(os.totalmem() / (1024 * 1024) * 0.8)} --initial_old_space_size=${Math.floor(os.totalmem() / (1024 * 1024) * 0.4)} --max_executable_size=512 --harmony`
+});
+
+process
+  .on('unhandledRejection', (err, promise) => logger.error({ err, promise }, 'unhandledRejection'))
+  .on('rejectionHandled', (promise) => logger.info({ promise }, 'rejectionHandled'))
+  .on('uncaughtException', (err, origin) => logger.error({ err, origin }, 'uncaughtException'))
+  .on('unhandledPromiseRejection', (reason, promise) => logger.error({ reason, promise }, 'unhandledPromiseRejection'))
+  .on('SIGTERM', () => logger.info('Received SIGTERM signal'))
+  .on('SIGINT', () => logger.info('Received SIGINT signal'))
+  .on('SIGUSR1', () => logger.info('Received SIGUSR1 signal'));
 
 import {
     loadConfig
@@ -214,7 +217,7 @@ const msgRetryCounterCache = new NodeCache()
 const {
     chain
 } = lodash
-const PORT = env.PORT || env.SERVER_PORT || 3000
+const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
 
 protoType();
 serialize();
@@ -255,7 +258,7 @@ global.loadDatabase = async function loadDatabase() {
                     clearInterval(intervalId);
                     resolve(db.data == null ? await global.loadDatabase() : db.data);
                 }
-            }, 1000);
+            }, 1 * 1000);
         }) :
         db.data === null ?
         (db.READ = true,
@@ -294,9 +297,7 @@ const [
     storeSystem.useMultiFileAuthState(authFolder)
 ])
 
-const logger = pino({ level: 'info' }, stream).child({
-    class: 'baileys'
-})
+const logger = pino({ level: 'info' }, stream);
 
 global.store = storeSystem.makeInMemoryStore({
     logger
@@ -481,32 +482,6 @@ if (useMobile && !conn.authState.creds.registered) {
 
 logger.info('\n🚩 W A I T I N G\n');
 
-process.on('unhandledRejection', (reason, promise) => {
-  const errorMsg = reason ? reason.stack || reason.message : 'Unhandled Rejection';
-  logger.error({ event: 'unhandledRejection', promise }, errorMsg);
-});
-
-process.on('rejectionHandled', (promise) => {
-  logger.info({ event: 'rejectionHandled', promise }, 'Rejection handled');
-});
-
-process.on('uncaughtException', (err, origin) => {
-  const errorMsg = err ? err.stack || err.message : 'Uncaught Exception';
-  logger.error({ event: 'uncaughtException', origin }, errorMsg);
-});
-
-process.on('uncaughtExceptionMonitor', (err, origin) => {
-  const errorMsg = err ? err.stack || err.message : 'Uncaught Exception Monitor';
-  logger.error({ event: 'uncaughtExceptionMonitor', origin }, errorMsg);
-});
-
-if (opts['cleartmp']) {
-    if (opts['cleartmp'] && (global.support || {}).find) {
-        ['tmp', 'jadibot'].forEach((filename) => cp.spawn('find', [os.tmpdir(), filename, '-amin', '3', '-type', 'f', '-delete']));
-        clearTmp();
-    }
-}
-
 async function writeDatabase() {
     try {
         await Promise.allSettled([
@@ -526,14 +501,7 @@ if (opts['server']) {
 
 let timeout = 0;
 async function connectionUpdate(update) {
-    const {
-        connection,
-        lastDisconnect,
-        isNewLogin,
-        qr,
-        isOnline,
-        receivedPendingNotifications
-    } = update;
+    const { connection, lastDisconnect, isNewLogin, qr, isOnline, receivedPendingNotifications } = update;
 
     if (connection) console.info("Taylor-V2".main, ">>".yellow, `Connection Status : ${connection}`.info);
 
@@ -562,9 +530,7 @@ async function connectionUpdate(update) {
 
     if (connection === 'open') {
         try {
-            const {
-                jid
-            } = conn.user;
+            const { jid } = conn.user;
             const name = await conn.getName(jid);
             conn.user.name = name || 'Taylor-V2';
 
@@ -575,12 +541,7 @@ async function connectionUpdate(update) {
             console.log("Taylor-V2".main, ">>".yellow, `Client connected on: ${conn?.user?.id.split(":")[0] || global.namebot}`.info);
             const infoMsg = `🤖 *Bot Info* 🤖\n🕰️ *Current Time:* ${currentTime}\n👤 *Name:* *${name || 'Taylor'}*\n🏷️ *Tag:* *@${jid.split('@')[0]}*\n⚡ *Ping Speed:* *${formattedPingSpeed}*\n📅 *Date:* ${currentTime.toDateString()}\n🕒 *Time:* ${currentTime.toLocaleTimeString()}\n📆 *Day:* ${currentTime.toLocaleDateString('id-ID', { weekday: 'long' })}\n📝 *Description:* Bot *${name || 'Taylor'}* is now active.`;
 
-            const messg = await conn.sendMessage(`${nomorown}@s.whatsapp.net`, {
-                text: infoMsg,
-                mentions: [nomorown + '@s.whatsapp.net', jid]
-            }, {
-                quoted: null
-            });
+            const messg = await conn.sendMessage(`${nomorown}@s.whatsapp.net`, { text: infoMsg, mentions: [nomorown + '@s.whatsapp.net', jid] }, { quoted: null });
             if (!messg) logger.error(`\nError Connection'\n${format(e)}'`);
         } catch (e) {
             logger.error(`\nError Connection'\n${format(e)}'`);
@@ -600,7 +561,6 @@ async function connectionUpdate(update) {
         setImmediate(() => process.exit(1));
     }
 }
-
 
 let isInit = true;
 let handler = (await import('./handler.js'));
@@ -694,92 +654,40 @@ global.reloadHandler = async function reloadHandler(restatConn) {
 };
 await global.reloadHandler();
 
-const spinner = ora({
-    text: 'Running tasks',
-    spinner: 'moon'
-});
-
+const spinner = ora({ text: 'Running tasks', spinner: 'moon' });
 const runTasks = async () => {
-    const tasks = [{
-            func: _quickTest,
-            message: 'Quick Test',
-            style: chalk.bgBlue.bold
-        },
-        {
-            func: writeDatabase,
-            message: 'Write database',
-            style: chalk.bgBlue.bold
-        },
-        {
-            func: filesInit,
-            message: 'Initializing files',
-            style: chalk.bgBlue.bold
-        },
-        {
-            func: libFiles,
-            message: 'Loading library files',
-            style: chalk.bgBlue.bold
-        },
-        {
-            func: watchFiles,
-            message: 'Watching files',
-            style: chalk.bgBlue.bold
-        },
-        {
-            func: () => watch(path.resolve(directoryName, 'plugins'), global.reload),
-            message: 'Watching plugins',
-            style: chalk.bgBlue.bold
-        },
-        opts['cleartmp'] ? {
-            func: clearTmp,
-            message: 'Clearing temporary files',
-            style: chalk.bgBlue.bold
-        } : null,
-        opts['clearsession'] ? {
-            func: clearSessions,
-            message: 'Clearing sessions',
-            style: chalk.bgBlue.bold
-        } : null,
-        {
-            func: createCertificate,
-            message: 'Create Certs',
-            style: chalk.bgBlue.bold
-        },
+    const tasks = [
+        { func: _quickTest, message: 'Quick Test', style: chalk.bgBlue.bold },
+        { func: writeDatabase, message: 'Write database', style: chalk.bgBlue.bold },
+        { func: filesInit, message: 'Initializing files', style: chalk.bgBlue.bold },
+        { func: libFiles, message: 'Loading library files', style: chalk.bgBlue.bold },
+        { func: watchFiles, message: 'Watching files', style: chalk.bgBlue.bold },
+        { func: () => watch(path.resolve(directoryName, 'plugins'), global.reload), message: 'Watching plugins', style: chalk.bgBlue.bold },
+        { func: clearTmp, message: 'Clearing temporary files', style: chalk.bgBlue.bold },
+        { func: clearSessions, message: 'Clearing sessions', style: chalk.bgBlue.bold },
+        { func: createCertificate, message: 'Create Certs', style: chalk.bgBlue.bold },
     ].filter(task => task !== null);
 
-    const promises = tasks.map(async ({
-        func,
-        message,
-        style
-    }) => {
+    const executeTask = async ({ func, message, style }) => {
         try {
             spinner.start();
             spinner.text = style(message);
             await func();
-            spinner.succeed((message));
-            return {
-                status: 'fulfilled',
-                message
-            };
+            spinner.succeed(message);
+            return { status: 'fulfilled', message };
         } catch (error) {
-            spinner.fail((`Error occurred while running ${message}.`));
+            spinner.fail(`Error occurred while running ${message}.`);
             console.error(`Error occurred while running ${message}:`, error);
-            return {
-                status: 'rejected',
-                message,
-                error
-            };
+            return { status: 'rejected', message, error };
         }
-    });
+    };
 
     try {
-        const results = await Promise.allSettled(promises);
+        const results = await Promise.allSettled(tasks.map(executeTask));
         results.forEach(result => {
-            if (result.status === 'fulfilled') {
-                console.log((`${result.value.message} completed successfully!`));
-            }
+            if (result.status === 'fulfilled') console.log(`${result.value.message} completed successfully!`);
         });
-        console.log(('All tasks completed.'));
+        console.log('All tasks completed.');
     } catch (error) {
         console.error('Error occurred while running tasks:', error);
     } finally {
@@ -801,73 +709,43 @@ async function filesInit() {
         try {
             const module = (await import(file));
             global.plugins[moduleName] = module.default || module;
-            return {
-                moduleName,
-                success: true
-            };
+            return { moduleName, success: true };
         } catch (e) {
             logger.error(e);
             delete global.plugins[moduleName];
-            return {
-                moduleName,
-                filePath: file,
-                message: e.message,
-                success: false
-            };
+            return { moduleName, filePath: file, message: e.message, success: false };
         }
     });
 
     try {
         const results = await Promise.allSettled(importPromises);
+        const [successResults, errorResults] = results.reduce(([success, error], result) => {
+            if (result.status === 'fulfilled') success.push(result.value.moduleName);
+            else error.push({ filePath: result.reason.filePath, message: result.reason.message });
+            return [success, error];
+        }, [[], []]);
 
-        const successMessages = [];
-        const errorMessages = [];
-
-        results.forEach(result => {
-            if (result.status === 'fulfilled') {
-                successMessages.push(result.value.moduleName);
-            } else {
-                const error = result.reason;
-                errorMessages.push({
-                    filePath: error.filePath,
-                    message: error.message
-                });
-            }
-        });
-
-        global.plugins = Object.fromEntries(
-            Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b))
-        );
+        global.plugins = Object.fromEntries(Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b)));
 
         const loadedPluginsMsg = `Loaded ${CommandsFiles.length} JS Files total.`;
-        const successPluginsMsg = `✅ Success Plugins:\n${successMessages.length} total.`;
-        const errorPluginsMsg = `❌ Error Plugins:\n${errorMessages.length} total`;
+        const successPluginsMsg = `✅ Success Plugins:\n${successResults.length} total.`;
+        const errorPluginsMsg = `❌ Error Plugins:\n${errorResults.length} total`;
 
         logger.warn(loadedPluginsMsg);
         logger.info(successPluginsMsg);
         logger.error(errorPluginsMsg);
 
-        const errorMessagesText = errorMessages.map((error, index) =>
-            `  ❗ *Error ${index + 1}:* ${error.filePath}\n - ${error.message}`
-        ).join('');
+        const errorMessagesText = errorResults.map((error, index) => `❗ *Error ${index + 1}:* ${error.filePath}\n - ${error.message}`).join('');
 
         const messageText = `- 🤖 *Loaded Plugins Report* 🤖\n` +
             `🔧 *Total Plugins:* ${CommandsFiles.length}\n` +
-            `✅ *Success:* ${successMessages.length}\n` +
-            `❌ *Error:* ${errorMessages.length}\n` +
-            (errorMessages.length > 0 ? errorMessagesText : '');
+            `✅ *Success:* ${successResults.length}\n` +
+            `❌ *Error:* ${errorResults.length}\n` +
+            (errorResults.length > 0 ? errorMessagesText : '');
 
-        const messg = await conn.sendMessage(
-            `${nomorown}@s.whatsapp.net`, {
-                text: messageText
-            }, {
-                quoted: null
-            }
-        );
+        const messg = await conn.sendMessage(`${nomorown}@s.whatsapp.net`, { text: messageText }, { quoted: null });
 
-        if (!messg) {
-            logger.error(`\nError sending message`);
-        }
+        if (!messg) logger.error(`\nError sending message`);
     } catch (e) {
         logger.error(`\nError sending message: ${e}`);
     }
@@ -884,45 +762,26 @@ async function libFiles() {
         const moduleName = path.join('/lib', path.relative(path.resolve(global.__dirname(import.meta.url), 'lib'), file));
 
         try {
-            const module = (await import(file));
-            setNestedObject(global.lib, moduleName.slice(0, -3), module.default || module);
-            return {
-                moduleName,
-                success: true
-            };
+            const module = (await import(file)).default || (await import(file));
+            setNestedObject(global.lib, moduleName.slice(0, -3), module);
+            return { moduleName, success: true };
         } catch (e) {
             logger.error(e);
             delete global.lib[moduleName.slice(0, -3)];
-            return {
-                moduleName,
-                success: false
-            };
+            return { moduleName, success: false };
         }
     });
 
     try {
-        const results = await Promise.allSettled(importPromises);
-
-        results.forEach(result => {
-            if (result.status === 'rejected') {
-                const moduleName = result.value.moduleName;
-                logger.error(`Error occurred while importing ${moduleName}.`);
-            }
-        });
-
-        global.lib = Object.fromEntries(
-            Object.entries(global.lib[''].lib).sort(([a], [b]) => a.localeCompare(b))
-        );
+        await Promise.allSettled(importPromises);
+        global.lib = Object.fromEntries(Object.entries(global.lib[''].lib).sort(([a], [b]) => a.localeCompare(b)));
     } catch (e) {
         logger.error(`Error occurred while importing libraries: ${e}`);
     }
 }
 
 const setNestedObject = (obj, path, value) =>
-    path.split('/').reduce((acc, key, index, keys) => {
-        return index === keys.length - 1 ? (acc[key] = value) : (acc[key] = acc[key] || {});
-    }, obj);
-
+    path.split('/').reduce((acc, key, index, keys) => (index === keys.length - 1 ? (acc[key] = value) : (acc[key] = acc[key] || {})), obj);
 
 global.reload = async (_ev, filename) => {
     if (!pluginFilter(filename)) return;
@@ -1025,7 +884,7 @@ async function watchFiles() {
 
 async function clearTmp() {
     try {
-        const tmp = [tmpdir(), path.join(directoryName, './tmp')];
+        const tmp = [os.tmpdir(), path.join(directoryName, './tmp')];
         const filenames = await Promise.all(tmp.map(async (dirname) => {
             try {
                 const files = await readdirSync(dirname);
@@ -1134,7 +993,7 @@ async function createCertificate() {
     const response = await fetch('https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem.txt');
     const text = await response.text();
     writeFileSync(certFilePath, text);
-    env.NODE_EXTRA_CA_CERTS = certFilePath;
+    process.env.NODE_EXTRA_CA_CERTS = certFilePath;
   } catch (error) {
     console.error('Error downloading certificate:', error);
   }
