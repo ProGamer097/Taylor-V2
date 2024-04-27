@@ -1,64 +1,55 @@
-import axios from 'axios';
+import fetch from 'node-fetch';
 
-const handler = async (m, {
-    text
+let handler = async (m, {
+    conn,
+    args,
+    usedPrefix,
+    command
 }) => {
-    if (!text) throw 'Contoh: .gptc3 Pesan yang ingin Anda sampaikan kepada asisten AI';
-
-    m.reply(wait);
-    const messages = encodeURIComponent(text)
-
+let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    if (!text) return m.reply(`Input query text!\n*Example:*\n- *${usedPrefix + command}* hello`)
     try {
-
-        const response = await getgptc3Response(messages);
-
-        m.reply(response);
+        const result = await gptc3(text);
+        await m.reply(result);
     } catch (error) {
-        console.error('Error:', error);
-        m.reply(eror);
+        await m.reply(error);
     }
-};
+}
+handler.help = ["gptc3"]
+handler.tags = ["ai", "gpt"];
+handler.command = /^(gptc3)$/i
+export default handler
 
-handler.help = ['gptc3'];
-handler.tags = ['ai', 'gpt'];
-handler.command = /^(gptc3)$/i;
-
-export default handler;
-
-
-async function getgptc3Response(content) {
-    const url = 'https://c3.a0.chat/v1/chat/gpt/';
-    const headers = {
-        'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 11; M2004J19C Build/RP1A.200720.011) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.129 Mobile Safari/537.36 WhatsApp/1.2.3',
-        'Referer': 'https://c3.a0.chat/#/web/chat'
-    };
-
-    const requestData = {
-        list: [{
-            content: content,
-            role: "user",
-            nickname: "Next",
-            time: "2023-9-19 14:30:08",
-            isMe: true,
-            index: 0
-        }],
-        id: 1695108574472,
-        title: "gptc3 kawaii asistant",
-        time: "2023-9-19 14:29:34",
-        prompt: "",
-        models: 0,
-        temperature: 0,
-        continuous: true
-    };
-
+async function gptc3(your_qus) {
     try {
-        const response = await axios.post(url, requestData, {
-            headers
+        let linkaiList = [];
+        let Baseurl = "https://c3.a0.chat/";
+        linkaiList.push({
+            content: your_qus,
+            role: "user"
         });
-        return response.data;
+        linkaiList.push({
+            content: "Anda asisten AI, harap menggunakan bahasa Indonesia.",
+            role: "system"
+        });
+        if (linkaiList.length > 10) linkaiList.shift();
+        let response = await fetch(Baseurl + "v1/chat/gpt/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Forwarded-For": Array.from({
+                    length: 4
+                }, () => Math.floor(Math.random() * 256)).join('.'),
+                "Referer": Baseurl + "#/web/chat",
+                "accept": "application/json, text/plain, */*"
+            },
+            body: JSON.stringify({
+                list: linkaiList
+            })
+        });
+        return await response.text();
     } catch (error) {
-        console.error('Error:', error);
-        throw error;
+        console.error("Error:", error);
+        return null;
     }
 }

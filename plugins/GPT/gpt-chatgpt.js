@@ -6,13 +6,8 @@ let handler = async (m, {
     usedPrefix,
     command
 }) => {
-    let text
-    if (args.length >= 1) {
-        text = args.slice(0).join(" ")
-    } else if (m.quoted && m.quoted.text) {
-        text = m.quoted.text
-    } else throw "Input Teks"
-    await m.reply(wait)
+    let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    if (!text) return m.reply(`Input query text!\n*Example:*\n- *${usedPrefix + command}* hello`)
     try {
         let res = await ChatGptV1(text)
         await m.reply(res)
