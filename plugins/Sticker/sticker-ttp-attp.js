@@ -7,14 +7,14 @@ const {
 
 let handler = async (m, {
     conn,
-    text,
+    args,
     usedPrefix,
     command
 }) => {
     try {
         m.reply(wait);
-        text = text || m.quoted?.text || m.quoted?.caption || m.quoted?.description || '';
-        if (!text) throw `Example: ${usedPrefix + command} Lagi Ruwet`;
+        let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    if (!text) return m.reply(`Input query text!\n*Example:*\n- *${usedPrefix + command}* hello`)
 
         const apiEndpoint = 'https://api.lolhuman.xyz/api';
         const apiKey = global.lolkey;
@@ -53,14 +53,14 @@ let handler = async (m, {
             ttp7: async () => {
                 const response = await ttp(text);
                 if (Array.isArray(response) && response.length > 0 && response[0].url) {
-                    return await fetch(response[0].url).then(res => res.arrayBuffer());
+                    return await fetch('https://wsrv.nl/?url=' + response[0].url + '&output=webp').then(res => res.arrayBuffer());
                 } else {
                     throw 'Invalid response from ttp7';
                 }
             },
             ttp8: async () => {
                 const response = await raterian(text);
-                return await fetch(response).then(res => res.arrayBuffer());
+                return await fetch('https://wsrv.nl/?url=' + response + '&output=webp').then(res => res.arrayBuffer());
             },
             attp: async () => {
                 const apiUrl = `${apiEndpoint}/attp?apikey=${apiKey}&text=${encodeURIComponent(text)}`;
@@ -75,7 +75,7 @@ let handler = async (m, {
             attp3: async () => {
                 const response = await attp(text);
                 if (Array.isArray(response) && response.length > 0 && response[0].url) {
-                    return await fetch(response[0].url).then(res => res.arrayBuffer());
+                    return await fetch('https://wsrv.nl/?url=' + response[0].url + '&output=webp').then(res => res.arrayBuffer());
                 } else {
                     throw 'Invalid response from attp3';
                 }
@@ -97,9 +97,9 @@ let handler = async (m, {
     }
 };
 
-handler.help = ['ttp', 'ttp2 -> ttp8', 'attp', 'attp2 -> attp3', 'hartacustom'];
+handler.help = ['ttp', 'ttp2 -> ttp8', 'attp', 'attp2 -> attp3'];
 handler.tags = ['sticker'];
-handler.command = /^(ttp[2-8]?|attp[2-3]?|hartacustom)$/i;
+handler.command = /^(ttp[2-8]?|attp[2-3]?)$/i;
 handler.limit = true;
 
 export default handler;

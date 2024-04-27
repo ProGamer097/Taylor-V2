@@ -138,13 +138,21 @@ async function Quotly(a, b, c, d, reply) {
     let json;
 
     try {
-        json = await axios.post("http://quotly.netorare.codes/generate", obj, {
+        json = await axios.post("https://quote.btch.bz/generate", obj, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+    } catch (e) {
+        try {
+        json = await axios.post("https://quotly.netorare.codes/generate", obj, {
             headers: {
                 "Content-Type": "application/json"
             }
         });
     } catch (e) {
         return e;
+    }
     }
 
     const results = json.data.result.image;
