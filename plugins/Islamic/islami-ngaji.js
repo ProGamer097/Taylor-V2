@@ -1,119 +1,71 @@
 import cheerio from 'cheerio';
 import fetch from 'node-fetch';
 
-let handler = async (m, {
-    conn,
-    args,
-    usedPrefix,
-    text,
-    command
-}) => {
+let handler = async (m, { conn, args, text }) => {
     try {
-        let lister = [
-            "ayat",
-            "surah"
-        ]
+        let lister = ["ayat", "surah"];
+        let [feature, inputs, inputs_] = text.split("|");
 
-        let [feature, inputs, inputs_, inputs__, inputs___] = text.split("|")
+        if (!lister.includes(feature)) 
+            return m.reply("*Contoh:*\n.ngaji ayat|edisi\n\n*Pilih type yang ada:*\n\n" + lister.map(v => "  ○ " + v).join("\n"));
 
-        if (!lister.includes(feature)) return m.reply("*Contoh:*\n.ngaji ayat|edisi\n\n*Pilih type yang ada:*\n\n" + lister.map(v => "  ○ " + v).join("\n"))
+        await m.reply(wait);
 
-        if (lister.includes(feature)) {
-            if (feature == "ayat") {
-                if (!inputs) return m.reply("Masukkan query link\nContoh: .ngaji 1|3")
-                await m.reply(wait)
-                if (isNaN(inputs) || isNaN(inputs_)) return m.reply("Input harus berupa angka")
+        if (feature == "ayat") {
+            if (!inputs || isNaN(inputs) || isNaN(inputs_)) 
+                return m.reply("Masukkan input yang valid");
 
-                let data = await getEditionData()
-                let edisi = data.data.map((item, index) => {
-                    return `🔍 *[ EDISI ${index + 1} ]*
+            let data = await fetchJson('https://api.alquran.cloud/v1/edition/format/audio');
+            let edisi = data.data.map((item, index) => `🔍 *[ EDISI ${index + 1} ]*\n\n🌐 *English:* ${item.englishName}\n📛 *Name:* ${item.name}\n`).join("\n\n________________________\n\n");
 
-🌐 *English:* ${item.englishName}
-📛 *Name:* ${item.name}
-`
-                }).filter(v => v).join("\n\n________________________\n\n")
+            if (!inputs_) 
+                return m.reply("Pilih edisi yang Anda inginkan\nContoh: .ngaji ayat|edisi\n\n" + edisi);
 
-                if (!inputs_) return m.reply("Pilih edisi yang Anda inginkan\nContoh: .ngaji ayat|edisi\n\n" + edisi)
+            if (inputs_ >= 1 && inputs_ <= data.data.length) {
+                const index = inputs_ - 1;
+                let bagian = data.data[index];
+                let res = await getAyahData(inputs, bagian.identifier);
 
-                if (inputs_ >= 1 && inputs_ <= data.data.length) {
-                    const index = inputs_ - 1;
-                    let bagian = data.data[index];
-                    let res = await getAyahData(inputs, bagian.identifier)
-                    if (res.code !== 200) return m.reply(res.data)
-                    let imagers = await getImageUrl(res.data.number, res.data.surah.number)
-                    let cap = `🔍 *[ EDISI ${res.data.edition.englishName} ]*
+                if (res.code !== 200) 
+                    return m.reply(res.data);
 
-🌐 *Name:* ${res.data.surah.name}
-📢 *Surah Number:* ${res.data.surah.number}
-📖 *English:* ${res.data.surah.englishName}
-📝 *Text:* ${res.data.text}
+                let imagers = await getImageUrl(res.data.number, res.data.surah.number);
+                let cap = `🔍 *[ EDISI ${res.data.edition.englishName} ]*\n\n🌐 *Name:* ${res.data.surah.name}\n📢 *Surah Number:* ${res.data.surah.number}\n📖 *English:* ${res.data.surah.englishName}\n📝 *Text:* ${res.data.text}\n${wait}`;
 
-${wait}
-`
-                    await conn.sendFile(m.chat, imagers || logo, "", cap, m)
-                    await conn.sendMessage(m.chat, {
-                        audio: {
-                            url: res.data.audio
-                        },
-                        seconds: fsizedoc,
-                        ptt: true,
-                        mimetype: "audio/mpeg",
-                        fileName: "vn.mp3",
-                        waveform: [100, 0, 100, 0, 100, 0, 100]
-                    }, {
-                        quoted: m
-                    })
-                } else {
-                    return m.reply('Nomor yang diminta lebih besar dari jumlah objek yang ada.');
-                }
+                await conn.sendFile(m.chat, imagers || logo, "", cap, m);
+                await conn.sendMessage(m.chat, { audio: { url: res.data.audio }, seconds: fsizedoc, ptt: true, mimetype: "audio/mpeg", fileName: "vn.mp3", waveform: [100, 0, 100, 0, 100, 0, 100] }, { quoted: m });
+            } else {
+                return m.reply('Nomor yang diminta lebih besar dari jumlah objek yang ada.');
             }
+        } else if (feature == "surah") {
+            if (!inputs || isNaN(inputs) || isNaN(inputs_)) 
+                return m.reply("Masukkan input yang valid");
 
-            if (feature == "surah") {
-                if (!inputs) return m.reply("Masukkan query link\nContoh: .ngaji 1|3")
-                if (inputs > 114) return m.reply("Input lebih dari 114")
-                await m.reply(wait)
-                if (isNaN(inputs) || isNaN(inputs_)) return m.reply("Input harus berupa angka")
-                let data = await getEditionDataSurah()
-                let edisi = data.map((item, index) => {
-                    return `🔍 *[ EDISI ${index + 1} ]*
+            if (inputs > 114) 
+                return m.reply("Input lebih dari 114");
 
-🌐 *English:* ${item.englishName}
-📛 *Name:* ${item.name}
-`
-                }).filter(v => v).join("\n\n________________________\n\n")
+            let data = await fetchJson('https://raw.githubusercontent.com/islamic-network/cdn/master/info/cdn_surah_audio.json');
+            let edisi = data.map((item, index) => `🔍 *[ EDISI ${index + 1} ]*\n\n🌐 *English:* ${item.englishName}\n📛 *Name:* ${item.name}\n`).join("\n\n________________________\n\n");
 
-                if (!inputs_) return m.reply("Pilih edisi yang Anda inginkan\nContoh: .ngaji ayat|edisi\n\n" + edisi)
+            if (!inputs_) 
+                return m.reply("Pilih edisi yang Anda inginkan\nContoh: .ngaji ayat|edisi\n\n" + edisi);
 
-                if (inputs_ >= 1 && inputs_ <= data.length) {
-                    const index = inputs_ - 1;
-                    let bagian = data[index];
-                    let res = await getSurahData(inputs, bagian.identifier)
-                    if (res.code !== 200) return m.reply(res.data)
-                    let imagers = await getImageUrl(res.data.number, res.data.numberOfAyahs)
-                    let audios = await getAudioUrl(bagian.identifier, res.data.number)
-                    let cap = `🌐 *Name:* ${res.data.name}
+            if (inputs_ >= 1 && inputs_ <= data.length) {
+                const index = inputs_ - 1;
+                let bagian = data[index];
+                let res = await getSurahData(inputs, bagian.identifier);
 
-📢 *Surah:* ${res.data.number}
-📖 *English:* ${res.data.englishName}
+                if (res.code !== 200) 
+                    return m.reply(res.data);
 
-${wait}
-`
-                    await conn.sendFile(m.chat, imagers || logo, "", cap, m)
-                    await conn.sendMessage(m.chat, {
-                        audio: {
-                            url: audios
-                        },
-                        seconds: fsizedoc,
-                        ptt: true,
-                        mimetype: "audio/mpeg",
-                        fileName: "vn.mp3",
-                        waveform: [100, 0, 100, 0, 100, 0, 100]
-                    }, {
-                        quoted: m
-                    })
-                } else {
-                    return m.reply('Nomor yang diminta lebih besar dari jumlah objek yang ada.');
-                }
+                let imagers = await getImageUrl(res.data.number, res.data.numberOfAyahs);
+                let audios = await getAudioUrl(bagian.identifier, res.data.number);
+                let cap = `🌐 *Name:* ${res.data.name}\n\n📢 *Surah:* ${res.data.number}\n📖 *English:* ${res.data.englishName}\n${wait}`;
+
+                await conn.sendFile(m.chat, imagers || logo, "", cap, m);
+                await conn.sendMessage(m.chat, { audio: { url: audios }, seconds: fsizedoc, ptt: true, mimetype: "audio/mpeg", fileName: "vn.mp3", waveform: [100, 0, 100, 0, 100, 0, 100] }, { quoted: m });
+            } else {
+                return m.reply('Nomor yang diminta lebih besar dari jumlah objek yang ada.');
             }
         }
     } catch (e) {
@@ -126,35 +78,34 @@ handler.tags = ["internet"]
 handler.command = /^(ngaji)$/i
 export default handler
 
-/* New Line */
 async function fetchJson(url) {
-    const response = await fetch(url);
-    const data = await response.json();
-    return data;
-}
-
-async function getEditionData() {
-    const editionUrl = 'https://api.alquran.cloud/v1/edition/format/audio';
-    const editionData = await fetchJson(editionUrl);
-    return editionData;
-}
-
-async function getEditionDataSurah() {
-    const editionUrl = 'https://raw.githubusercontent.com/islamic-network/cdn/master/info/cdn_surah_audio.json';
-    const editionData = await fetchJson(editionUrl);
-    return editionData;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        throw error;
+    }
 }
 
 async function getAyahData(ayah, edition) {
-    const ayahUrl = `https://api.alquran.cloud/v1/ayah/${ayah}/${edition}`;
-    const ayahData = await fetchJson(ayahUrl);
-    return ayahData;
+    try {
+        const ayahUrl = `https://api.alquran.cloud/v1/ayah/${ayah}/${edition}`;
+        const ayahData = await fetchJson(ayahUrl);
+        return ayahData;
+    } catch (error) {
+        throw error;
+    }
 }
 
 async function getSurahData(surah, edition) {
-    const surahUrl = `https://api.alquran.cloud/v1/surah/${surah}/${edition}`;
-    const surahData = await fetchJson(surahUrl);
-    return surahData;
+    try {
+        const surahUrl = `https://api.alquran.cloud/v1/surah/${surah}/${edition}`;
+        const surahData = await fetchJson(surahUrl);
+        return surahData;
+    } catch (error) {
+        throw error;
+    }
 }
 
 function getImageUrl(surah, ayah) {
@@ -163,4 +114,8 @@ function getImageUrl(surah, ayah) {
 
 function getAudioUrl(edition, number) {
     return `https://cdn.islamic.network/quran/audio-surah/128/${edition}/${number}.mp3`;
+}
+
+function isNaN(input) {
+    return Number.isNaN(input);
 }
