@@ -1,17 +1,17 @@
 import os from 'os';
 
-Object.assign(process.env, {
-    NODE_TLS_REJECT_UNAUTHORIZED: '0',
-    NODE_ENV: 'production',
-    V8_ENABLE_WEBASSEMBLY: '1',
-    V8_CONTEXT_ALIGNMENT: '64',
-    V8_DEPRECATION_WARNINGS: 'false',
-    V8_TURBOFAN_BACKEND: '1',
-    V8_TURBOFAN_INTRINSICS: '1',
-    UV_THREADPOOL_SIZE: Math.floor(os.totalmem() / (1024 * 1024)) <= 1024 ? '4' : (Math.floor(os.totalmem() / (1024 * 1024)) <= 2048 ? '8' : (os.cpus().length * 2).toString()),
-    NODE_OPTIONS: `--max-old-space-size=${Math.floor(os.totalmem() / (1024 * 1024) * 0.8)} --abort-on-uncaught-exception --max-http-header-size=8192 --stack-trace-limit=50 --max-semi-space-size=256 --max-executable-size=512 --strict --harmony --experimental-modules`,
-    V8_OPTIONS: `--max_old_space_size=${Math.floor(os.totalmem() / (1024 * 1024) * 0.8)} --initial_old_space_size=${Math.floor(os.totalmem() / (1024 * 1024) * 0.4)} --max_executable_size=512 --harmony`
-});
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+process.env.NODE_ENV = 'production';
+process.env.V8_ENABLE_WEBASSEMBLY = '1';
+process.env.V8_CONTEXT_ALIGNMENT = '64';
+process.env.V8_DEPRECATION_WARNINGS = 'false';
+process.env.V8_TURBOFAN_BACKEND = '1';
+process.env.V8_TURBOFAN_INTRINSICS = '1';
+
+const totalMemMB = Math.floor(os.totalmem() / (1024 * 1024));
+process.env.UV_THREADPOOL_SIZE = totalMemMB <= 1024 ? '4' : totalMemMB <= 2048 ? '8' : (os.cpus().length * 2).toString();
+process.env.NODE_OPTIONS = `--max-old-space-size=${Math.floor(totalMemMB * 0.8)} --abort-on-uncaught-exception --max-http-header-size=8192 --stack-trace-limit=50 --max-semi-space-size=256 --max-executable-size=512 --strict --harmony --experimental-modules`;
+process.env.V8_OPTIONS = `--max_old_space_size=${Math.floor(totalMemMB * 0.8)} --initial_old_space_size=${Math.floor(totalMemMB * 0.4)} --max_executable_size=512 --harmony`;
 
 import {
     loadConfig
@@ -291,13 +291,21 @@ const [
 const logger = pino({ level: 'info' }, stream);
 
 process
-  .on('unhandledRejection', (err, promise) => logger.error({ err, promise }, 'unhandledRejection'))
-  .on('rejectionHandled', (promise) => logger.info({ promise }, 'rejectionHandled'))
-  .on('uncaughtException', (err, origin) => logger.error({ err, origin }, 'uncaughtException'))
-  .on('unhandledPromiseRejection', (reason, promise) => logger.error({ reason, promise }, 'unhandledPromiseRejection'))
+  .on('unhandledRejection', (err, promise) => logger.error({ err, promise }, 'Unhandled Rejection'))
+  .on('rejectionHandled', (promise) => logger.info({ promise }, 'Rejection Handled'))
+  .on('uncaughtException', (err, origin) => logger.error({ err, origin }, 'Uncaught Exception'))
+  .on('unhandledPromiseRejection', (reason, promise) => logger.error({ reason, promise }, 'Unhandled Promise Rejection'))
   .on('SIGTERM', () => logger.info('Received SIGTERM signal'))
   .on('SIGINT', () => logger.info('Received SIGINT signal'))
-  .on('SIGUSR1', () => logger.info('Received SIGUSR1 signal'));
+  .on('SIGUSR1', () => logger.info('Received SIGUSR1 signal'))
+  .on('SIGUSR2', () => logger.info('Received SIGUSR2 signal'))
+  .on('beforeExit', (code) => logger.warn({ code }, 'Process Before Exit'))
+  .on('exit', (code) => logger.info({ code }, 'Process Exit'))
+  .on('warning', (warning) => logger.warn({ warning }, 'Node Warning'))
+  .on('disconnect', () => logger.warn('Node Disconnected'))
+  .on('message', (message) => logger.info({ message }, 'Node Message'))
+  .on('multipleResolves', (type, promise) => logger.warn({ type, promise }, 'Multiple Resolves'))
+  .on('childProcess', (childProcess) => logger.info({ childProcess }, 'Child Process Event'));
 
 global.store = storeSystem.makeInMemoryStore({
     logger
@@ -548,6 +556,7 @@ async function connectionUpdate(update) {
         }
         logger.info(chalk.bold.yellow('\n🚩 R E A D Y'));
         await runTasks();
+        Object.freeze(global.reload);
     }
 
     if (isOnline === true) logger.info(chalk.bold.green('Status Aktif'));
