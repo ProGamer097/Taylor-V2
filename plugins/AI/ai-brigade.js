@@ -7,10 +7,11 @@ const handler = async (m, {
     conn,
     command,
     usedPrefix,
-    text
+    args
 }) => {
     conn.brigadeIds = conn.brigadeIds || {};
-
+    let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    
     if (!text) {
         return m.reply(`
             Input query. Example: ${usedPrefix + command} hello

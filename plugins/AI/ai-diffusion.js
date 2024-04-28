@@ -5,8 +5,10 @@ let handler = async (m, {
     isOwner,
     usedPrefix,
     command,
-    text
+    args
 }) => {
+let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    
     if (!text) throw 'Example: .diffusion highly detailed, intricate, 4k, 8k, sharp focus, detailed hair, detailed'
     m.reply(wait)
     try {

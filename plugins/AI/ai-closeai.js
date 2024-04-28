@@ -9,9 +9,10 @@ let handler = async (m, {
     conn,
     args,
     usedPrefix,
-    text,
     command
 }) => {
+let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    
     if (!text) return m.reply("Input query\nExample: .closeai hello")
     await m.reply(wait);
     try {

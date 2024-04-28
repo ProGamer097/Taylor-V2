@@ -7,11 +7,13 @@ const fetchData = async (url) => {
 
 const handler = async ({
     conn,
-    text,
+    args,
     usedPrefix,
     command
 }) => {
     conn.characterai = conn.characterai ? conn.characterai : {};
+    let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    
     if (!text) throw `*• Example:* ${usedPrefix + command} *[on/off]*
 *• Example search Chara:* ${usedPrefix + command} search *[characters name]*`
     const keyword = text.split(" ")[0];
