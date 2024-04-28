@@ -5,13 +5,13 @@ let handler = async (m, {
     conn,
     args,
     usedPrefix,
-    text,
     command
 }) => {
+let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    
     if (!text) return m.reply("Input query\nExample: .wxgpt hello")
     await m.reply(wait)
     try {
-        // Contoh penggunaan
         let result = await wxGpt(text)
         await m.reply(result)
     } catch (e) {

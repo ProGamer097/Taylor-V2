@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 const handler = async (m, {
-    text
+    args
 }) => {
+let text = args.length >= 1 ? args.slice(0).join(" ") : (m.quoted && m.quoted?.text || m.quoted?.caption || m.quoted?.description) || null;
+    
     if (!text) throw 'Contoh: .gptzw7 Pesan yang ingin Anda sampaikan kepada asisten AI';
 
     m.reply(wait);
