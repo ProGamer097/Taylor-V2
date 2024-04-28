@@ -288,7 +288,7 @@ const [
     storeSystem.useMultiFileAuthState(authFolder)
 ])
 
-const logger = pino({ level: 'info' }, stream);
+const logger = pino({ level: 'fatal' }, stream);
 
 process
   .on('unhandledRejection', (err, promise) => logger.error({ err, promise }, 'Unhandled Rejection'))
@@ -301,10 +301,10 @@ process
   .on('SIGUSR2', () => logger.info('Received SIGUSR2 signal'))
   .on('beforeExit', (code) => logger.warn({ code }, 'Process Before Exit'))
   .on('exit', (code) => logger.info({ code }, 'Process Exit'))
-  .on('warning', (warning) => logger.warn({ warning }, 'Node Warning'))
+  .on('warning', (warning) => /*logger.warn({ warning }, 'Node Warning')*/ null)
   .on('disconnect', () => logger.warn('Node Disconnected'))
   .on('message', (message) => logger.info({ message }, 'Node Message'))
-  .on('multipleResolves', (type, promise) => logger.warn({ type, promise }, 'Multiple Resolves'))
+  .on('multipleResolves', (type, promise) => /*logger.warn({ type, promise }, 'Multiple Resolves')*/ null)
   .on('childProcess', (childProcess) => logger.info({ childProcess }, 'Child Process Event'));
 
 global.store = storeSystem.makeInMemoryStore({
