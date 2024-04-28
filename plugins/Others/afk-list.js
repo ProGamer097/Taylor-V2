@@ -8,7 +8,7 @@ let handler = async (m, {
     try {
         const caption = `*LIST AFK for Chat:* ${await conn.getName(m.chat)}\n\n${(conn.listAfk[m.chat] || []).map((v, i) => `*${i + 1}.*  - *Name:* ${v.username}\n     - *ID:* @${v.id.split('@')[0]}\n     - *Time:* ${formatDateDetails(global.db.data.users[v.id].afk)}\n     - *Reason:* ${global.db.data.users[v.id].afkReason}`).join('\n\n') || 'No users in the list.'}`;
 
-        await conn.reply(m.chat, caption, null, {
+        await conn.reply(m.chat, caption, m, {
             contextInfo: {
                 mentionedJid: (conn.listAfk[m.chat] || []).map((v) => v.id),
                 externalAdReply: {

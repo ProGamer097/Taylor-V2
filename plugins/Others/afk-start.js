@@ -24,9 +24,9 @@ let handler = async (m, {
 
         const caption = `\n🚀 ${await conn.getName(m.sender)} @${m.sender.split("@")[0]} Sekarang lagi AFK\n*Dengan Alasan:*\n${text ? ' ' + text : 'Tanpa alasan'}`;
 
-        await conn.reply(m.chat, caption, null, {
+        await conn.reply(m.chat, caption, m, {
             contextInfo: {
-                mentionedJid: [m.sender],
+                mentionedJid: await conn.parseMention(caption),
                 externalAdReply: {
                     title: "AFK Start",
                     thumbnail: await (await conn.getFile("https://cdn-icons-png.flaticon.com/128/742/742927.png")).data

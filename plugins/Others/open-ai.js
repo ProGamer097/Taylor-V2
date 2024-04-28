@@ -44,7 +44,8 @@ async function CleanDx(your_qus) {
                 "accept": "application/json, text/plain, */*"
             },
             body: JSON.stringify({
-                list: linkaiList
+                list: linkaiList,
+                prompt: your_qus
             })
         });
         return await response.text();
