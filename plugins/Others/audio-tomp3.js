@@ -1,26 +1,35 @@
-import {
-    toAudio
-} from '../../lib/converter.js'
+import { toAudio } from '../../lib/converter.js';
 
-let handler = async (m, {
-    conn,
-    usedPrefix,
-    command
-}) => {
-    let q = m.quoted ? m.quoted : m
-    let mime = (m.quoted ? m.quoted : m.msg).mimetype || ''
-    if (!/video|audio/.test(mime)) throw `reply video/voice note you want to convert to audio/mp3 with caption *${usedPrefix + command}*`
-    let media = await q.download?.()
-    if (!media) throw 'Can\'t download media'
-    let audio = await toAudio(media, 'mp4')
-    if (!audio.data) throw 'Can\'t convert media to audio'
-    conn.sendFile(m.chat, audio.data, 'audio.mp3', '', m, null, {
-        mimetype: 'audio/mp4'
-    })
-}
-handler.help = ['tomp3'].map(v => v + ' <reply>')
-handler.tags = ['audio']
+let handler = async (m, { conn, usedPrefix, command }) => {
+    try {
+        const q = m.quoted || m;
+        const mime = (m.quoted ? m.quoted : m.msg).mimetype || '';
 
-handler.command = /^to(mp3|a(udio)?)$/i
+        if (!/video|audio/.test(mime)) {
+            return m.reply(`Reply to a video/voice note to convert to audio/mp3 with caption *${usedPrefix + command}*`);
+        }
 
-export default handler
+        const media = await q.download?.();
+        if (!media) {
+            return m.reply("Can't download media");
+        }
+
+        const audio = await toAudio(media, 'mp4');
+        if (!audio.data) {
+            return m.reply("Can't convert media to audio");
+        }
+
+        conn.sendFile(m.chat, audio.data, 'audio.mp3', '', m, null, {
+            mimetype: 'audio/mp4'
+        });
+    } catch (error) {
+        m.reply('Failed to convert video/voice note to audio/mp3. Please try again later.');
+        console.error(error);
+    }
+};
+
+handler.help = ['toaudio'];
+handler.tags = ['audio'];
+handler.command = /^to(mp3|a(udio)?)$/i;
+
+export default handler;
