@@ -886,7 +886,7 @@ export async function handler(chatUpdate) {
                     wood: 0,
                     wortel: 0,
                 }
-            let chat = global.db.data.chats[m.chat]
+            let chat = global.db?.data?.chats[m.chat]
             if (typeof chat !== "object")
                 global.db.data.chats[m.chat] = {}
             if (chat) {
@@ -945,7 +945,7 @@ export async function handler(chatUpdate) {
                     viewonce: false,
                     welcome: true,
                 }
-            let akinator = global.db.data.users[m.sender].akinator
+            let akinator = global.db?.data?.users[m.sender].akinator
             if (typeof akinator !== 'object')
                 global.db.data.users[m.sender].akinator = {}
             if (akinator) {
@@ -979,7 +979,7 @@ export async function handler(chatUpdate) {
                     step: null,
                     soal: null
                 }
-            let settings = global.db.data.settings[this.user.jid]
+            let settings = global.db?.data?.settings[this.user.jid]
             if (typeof settings !== "object") global.db.data.settings[this.user.jid] = {}
             if (settings) {
                 if (!("self" in settings)) settings.self = false
@@ -1021,7 +1021,7 @@ export async function handler(chatUpdate) {
         const isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
         const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
 
-        if (opts["queque"] || global.db.data.settings[this.user.jid].queque && m.text && !m.fromMe && !(isMods || isPrems)) {
+        if (opts["queque"] || global.db?.data?.settings[this.user.jid].queque && m.text && !m.fromMe && !(isMods || isPrems)) {
             const id = m.id
             this.msgqueque.add(id)
             await this.msgqueque.waitQueue(id)
@@ -1038,7 +1038,7 @@ export async function handler(chatUpdate) {
         m.exp += Math.ceil(Math.random() * 10)
 
         let usedPrefix
-        let _user = global.db.data && global.db.data.users && global.db.data.users[m.sender]
+        let _user = global.db.data && global.db?.data?.users && global.db?.data?.users[m.sender]
 
         const groupMetadata = (m.isGroup ? ((this.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
         const participants = (m.isGroup ? groupMetadata.participants : []) || []
@@ -1070,10 +1070,6 @@ export async function handler(chatUpdate) {
                     }
                 }
             }
-            if (!opts["restrict"] || global.db.data.settings[this.user.jid].restrict)
-                if (plugin.tags && plugin.tags.includes("admin")) {
-                    continue
-                }
 
             const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
             let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix
@@ -1144,10 +1140,10 @@ export async function handler(chatUpdate) {
                 if (!isAccept) continue
                 m.plugin = name
 
-                if (m.chat in global.db.data.chats || m.sender in global.db.data.users || this.user.jid in global.db.data.settings) {
-                    let chat = global.db.data.chats[m.chat]
-                    let user = global.db.data.users[m.sender]
-                    let _chat = global.db.data.settings[this.user.jid]
+                if (m.chat in global.db?.data?.chats || m.sender in global.db?.data?.users || this.user.jid in global.db?.data?.settings) {
+                    let chat = global.db?.data?.chats[m.chat]
+                    let user = global.db?.data?.users[m.sender]
+                    let _chat = global.db?.data?.settings[this.user.jid]
                     if (
                         name != "/plugins/Owner/owner-unbanchat.js" &&
                         name != "/plugins/Owner/owner-exec.js" &&
@@ -1184,9 +1180,10 @@ export async function handler(chatUpdate) {
                     (plugin.admin && !isAdmin && (fail("admin", m, this), true)) ||
                     (plugin.private && m.isGroup && (fail("private", m, this), true)) ||
                     (plugin.register && !_user.registered && (fail("unreg", m, this), true)) ||
-                    (plugin.nsfw && global.db.data.chats[m.chat].nsfw && (fail("nsfw", m, this), true)) ||
+                    (plugin.nsfw && global.db?.data?.chats[m.chat].nsfw && (fail("nsfw", m, this), true)) ||
                     (global.plugins[name].error && (fail("error", m, this), true)) ||
-                    (opts['antirpg'] && global.db.data.settings[this.user.jid].antirpg && plugin.tags && plugin.tags.includes("rpg") && (fail("rpg", m, this), true))
+                    (opts['antirpg'] && global.db?.data?.settings[this.user.jid].antirpg && plugin.tags && plugin.tags?.includes("rpg") && (fail("rpg", m, this), true)) ||
+                    (opts['restrict'] && global.db?.data?.settings[this.user.jid].restrict && plugin.tags && plugin.tags?.includes("admin") && (fail("restrict", m, this), true))
                 ) return false;
                 m.isCommand = true
 
@@ -1200,7 +1197,7 @@ export async function handler(chatUpdate) {
                     })
                 else
                     m.exp += xp
-                if (!isPrems && plugin.limit && global.db.data.users[m.sender].limit < plugin.limit * 1) {
+                if (!isPrems && plugin.limit && global.db?.data?.users[m.sender].limit < plugin.limit * 1) {
                     this.sendMessage(m.chat, {
                         text: `[❗] *Limit Anda Habis, Beberapa Command Tidak Bisa Di Akses*`,
                         mentions: [m.sender]
@@ -1278,7 +1275,7 @@ export async function handler(chatUpdate) {
     } catch (e) {
         console.error(e)
     } finally {
-        if (opts["queque"] || global.db.data.settings[this.user.jid].queque && m.text) {
+        if (opts["queque"] || global.db?.data?.settings[this.user.jid].queque && m.text) {
             const id = m.id
             this.msgqueque.unqueue(id)
         }
@@ -1288,7 +1285,7 @@ export async function handler(chatUpdate) {
         } = global.db.data;
 
         if (m && m.sender) {
-            user = global.db.data.users[m.sender];
+            user = global.db?.data?.users[m.sender];
             if (user) {
                 user.exp = (user.exp || 0) + (m.exp || 0);
                 user.limit = (user.limit || 0) - (m.limit || 0);
@@ -1297,7 +1294,7 @@ export async function handler(chatUpdate) {
 
         if (m && m.plugin) {
             let now = +new Date();
-            stats = global.db.data.stats;
+            stats = global.db?.data?.stats;
             let stat = stats[m.plugin] || {};
             stat.total = !Number.isNaN(stat.total) ? stat.total + 1 : 1;
             stat.success = !Number.isNaN(stat.success) ? (m.error != null ? stat.success : stat.success + 1) : (m.error != null ? 0 : 1);
@@ -1307,11 +1304,11 @@ export async function handler(chatUpdate) {
         }
 
         try {
-            if (!opts["noprint"] || global.db.data.settings[this.user.jid].noprint) await (await import("./lib/print.js")).default(m, this)
+            if (!opts["noprint"] || global.db?.data?.settings[this.user.jid].noprint) await (await import("./lib/print.js")).default(m, this)
         } catch (e) {
             console.log(m, m.quoted, e)
         }
-        if (opts["autoread"] || global.db.data.settings[this.user.jid].autoread)
+        if (opts["autoread"] || global.db?.data?.settings[this.user.jid].autoread)
             await this.chatRead(m.key).catch(() => {})
     }
 }
@@ -1325,9 +1322,9 @@ export async function participantsUpdate({
     participants,
     action
 }) {
-    if (opts["self"] || global.db.data.settings[this.user.jid].self || this.isInit) return;
+    if (opts["self"] || global.db?.data?.settings[this.user.jid].self || this.isInit) return;
     if (global.db.data == null) await loadDatabase();
-    const chat = global.db.data.chats[id] || {};
+    const chat = global.db?.data?.chats[id] || {};
     const emoji = {
         promote: '👤👑',
         demote: '👤🙅‍♂️',
@@ -1441,9 +1438,9 @@ export async function participantsUpdate({
 export async function groupsUpdate(groupsUpdate) {
     for (const groupUpdate of groupsUpdate) {
         const id = groupUpdate.id
-        if (opts["self"] || global.db.data.settings[this.user.jid].self) continue;
+        if (opts["self"] || global.db?.data?.settings[this.user.jid].self) continue;
         if (!id) continue
-        let chats = global.db.data.chats[id] || {}
+        let chats = global.db?.data?.chats[id] || {}
         const emoji = {
             desc: '📝',
             subject: '📌',
@@ -1528,7 +1525,7 @@ export async function deleteUpdate(message) {
         if (fromMe) return
         let msg = this.serializeM(this.loadMessage(id))
         if (!msg) return
-        let chat = global.db.data.chats[msg.chat] || {}
+        let chat = global.db?.data?.chats[msg.chat] || {}
         if (chat.antiDelete) return
         const mtype = getContentType(msg.message);
         if (mtype === 'conversation') {
@@ -1537,12 +1534,13 @@ export async function deleteUpdate(message) {
             };
             delete msg.message[mtype];
         }
+        const caption = `❗ Terdeteksi @${participant.split`@`[0]} telah menghapus pesan.\nUntuk mematikan fitur ini, ketik\n*.off antidelete*\n\nUntuk menghapus pesan yang dikirim BOT, reply pesan dengan perintah\n*.delete*`;
         await this.reply(
             msg.chat,
-            `❗ Terdeteksi @${participant.split`@`[0]} telah menghapus pesan.\nUntuk mematikan fitur ini, ketik\n*.off antidelete*\n\nUntuk menghapus pesan yang dikirim BOT, reply pesan dengan perintah\n*.delete*`,
+            caption,
             msg, {
                 contextInfo: {
-                    mentionedJid: [participant],
+                    mentionedJid: await this.parseMention(caption),
                     externalAdReply: {
                         title: "Deleted Message",
                         body: "",
@@ -1591,7 +1589,7 @@ export async function presenceUpdate(presenceUpdate) {
     const id = presenceUpdate.id;
     const nouser = Object.keys(presenceUpdate.presences);
     const status = presenceUpdate.presences[nouser]?.lastKnownPresence;
-    const user = global.db.data.users[nouser[0]];
+    const user = global.db?.data?.users[nouser[0]];
 
     if (user?.afk && status === "composing" && user.afk > -1) {
         if (user.banned) {
