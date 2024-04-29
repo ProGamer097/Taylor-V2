@@ -4,7 +4,6 @@ import {
 import {
     Uploader
 } from '../../lib/tools/uploader.js';
-import crypto from 'crypto';
 import axios from 'axios';
 
 const upload = new Uploader();
@@ -47,13 +46,16 @@ const handler = async (m, {
         const replyMessage = (q?.text || q?.caption || q?.message?.documentMessage?.caption || mime) && {
             name: await conn.getName(q?.sender),
             text: q?.text || q?.caption || q?.message?.documentMessage?.caption || '',
-            chatId: parseInt(crypto.createHash('md5').update(q?.sender).digest('hex'), 16)
+            id: q?.sender,
+            photo: {
+                        url: await conn.profilePictureUrl(q?.sender, 'image').catch(_ => logo)
+                    }
         };
 
         const json = {
             type: 'quote',
             format: 'png',
-            backgroundColor: '#FFFFFF',
+            backgroundColor: '#E7FFDD',
             width: 512,
             height: 768,
             scale: 2,
@@ -64,7 +66,7 @@ const handler = async (m, {
                 },
                 avatar: true,
                 from: {
-                    id: parseInt(crypto.createHash('md5').update(m.sender).digest('hex'), 16),
+                    id: m.sender,
                     name: await conn.getName(m.sender),
                     photo: {
                         url: await conn.profilePictureUrl(m.sender, 'image').catch(_ => logo)
@@ -81,7 +83,7 @@ const handler = async (m, {
         const stickerBuffer = await sticker(buffer, false, await conn.getName(m.sender), m.sender.split('@')[0]);
         if (!stickerBuffer) return m.reply('Error creating sticker.');
 
-        await conn.sendFile(m.chat, stickerBuffer, 'Quotly.webp', '', m);
+        stickerBuffer && await conn.sendFile(m.chat, stickerBuffer, 'Quotly.webp', '', m);
     } catch (error) {
         console.error('Handler Error:', error);
     }
