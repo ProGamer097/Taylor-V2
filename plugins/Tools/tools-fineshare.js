@@ -34,6 +34,6 @@ let handler = async (m, {
 
 handler.help = ['fine'].map(v => v + ' <reply>');
 handler.tags = ['audio'];
-handler.command = /^(fine)$/i;
+handler.command = ['fine', 'fineshare'];
 
 export default handler;

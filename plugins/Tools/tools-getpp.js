@@ -20,7 +20,9 @@ const handler = async (m, {
 
         for (const who of validNumbers.slice(0, 5)) {
             const data = await conn.onWhatsApp(who);
-            for (const item of data.filter(item => item.exists)) {
+            for (const item of (data.filter(item => item.exists)).filter((item, index, self) =>
+  index === self.findIndex((t) => t.jid === item.jid)
+)) {
                 const profileJid = item.jid;
                 try {
                     const response = await conn.profilePictureUrl(profileJid, 'image');

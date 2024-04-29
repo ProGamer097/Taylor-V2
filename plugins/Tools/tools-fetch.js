@@ -91,7 +91,9 @@ const handler = async (m, {
                 } = new URL(normalizeUrl(url)));
                 const headers = {
                     Referer: origin,
-                    'User-Agent': userAgent()
+                    'User-Agent': userAgent(),
+                    'DNT': 1,
+                    'Upgrade-Insecure-Request': 1
                 };
                 response = await fetcher.lib(link, {
                     ...fetcher.options,

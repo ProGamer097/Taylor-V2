@@ -24,7 +24,7 @@ let handler = async (m, {
 };
 handler.help = ['', 'code'].map(v => 'qr' + v + ' <teks>');
 handler.tags = ['tools'];
-handler.command = /^qr(code)?$/i;
+handler.command =  ['qr', 'qrcode'];
 export default handler;
 
 const generateQRCode = async text => {

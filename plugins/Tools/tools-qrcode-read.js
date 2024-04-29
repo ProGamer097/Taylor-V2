@@ -17,7 +17,7 @@ let handler = async (m, { conn, usedPrefix, args, command }) => {
 
 handler.help = ['readqrcode'];
 handler.tags = ['tools'];
-handler.command = /^(readqr(code)?)$/i;
+handler.command = ['readqr', 'readqrcode'];
 
 export default handler;
 
