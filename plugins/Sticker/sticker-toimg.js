@@ -1,23 +1,28 @@
-import {
-    webp2png
-} from '../../lib/webp2mp4.js'
+import { webp2png } from '../../lib/webp2mp4.js';
 
-let handler = async (m, {
-    conn,
-    usedPrefix,
-    command
-}) => {
-    const notStickerMessage = `✳️ Reply to a sticker with :\n\n *${usedPrefix + command}*`
-    if (!m.quoted) throw notStickerMessage
-    const q = m.quoted || m
-    let mime = q.mediaType || ''
-    if (!/sticker/.test(mime)) throw notStickerMessage
-    let media = await q.download()
-    let out = await webp2png(media).catch(_ => null) || Buffer.alloc(0)
-    await conn.sendFile(m.chat, out, 'out.png', '*✅ Here you have*', m)
-}
-handler.help = ['toimg (reply)']
-handler.tags = ['sticker']
-handler.command = /^t(oim(age|g)|im(age|g))$/i
+let handler = async (m, { conn, usedPrefix, command }) => {
+    const notStickerMessage = `✳️ Reply to a sticker with :\n\n *${usedPrefix + command}*`;
 
-export default handler
+    try {
+        const q = m.quoted || m;
+        const mime = q.mediaType || '';
+
+        if (!m.quoted || !/sticker/.test(mime)) return m.reply(notStickerMessage);
+
+        const media = await q.download();
+        if (media) await conn.sendMessage(m.chat, { image: media, caption: '*✅ Here you have*' }, { quoted: m });
+    } catch (error) {
+        try {
+            const out = await webp2png(media) || Buffer.alloc(0);
+            if (out) await conn.sendFile(m.chat, out, 'out.png', '*✅ Here you have*', m);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+};
+
+handler.help = ['toimg (reply)'];
+handler.tags = ['sticker'];
+handler.command = /^t(oim(age|g)|im(age|g))$/i;
+
+export default handler;
