@@ -715,8 +715,26 @@ ${v.rowId}`.trim()
             // Biasa
             let caption = tek + "\n\n" + spas + "*[ C O M M A N D ]*\n" + sects
             conn.temamenu = conn.temamenu ? conn.temamenu : {
-                id: 1
-            }
+        id: 0
+    }
+    if (conn.temamenu.id === 0) {
+    return await conn.sendButtonMessage(m.chat, [
+              {
+                "name": "quick_reply",
+                "buttonParamsJson": JSON.stringify({
+                "display_text": "All Menu",
+                "id": _p + "allmenu"
+              }, null, 4)
+              },
+              {
+                "name": "quick_reply",
+                "buttonParamsJson": JSON.stringify({
+                "display_text": "Menu List",
+                "id": _p + "menulist"
+              }, null, 4)
+              }
+              ], caption, null, null, null, m, {})
+              }
             if (conn.temamenu.id === 1) {
                 return await conn.reply(
                     m.chat,
@@ -947,8 +965,26 @@ ${v.rowId}`.trim()
         //------------------< MENU >----------------
         let caption = text.trim()
         conn.temamenu = conn.temamenu ? conn.temamenu : {
-            id: 1
-        }
+        id: 0
+    }
+    if (conn.temamenu.id === 0) {
+await conn.sendButtonMessage(m.chat, [
+              {
+                "name": "quick_reply",
+                "buttonParamsJson": JSON.stringify({
+                "display_text": "All Menu",
+                "id": _p + "allmenu"
+              }, null, 4)
+              },
+              {
+                "name": "quick_reply",
+                "buttonParamsJson": JSON.stringify({
+                "display_text": "Menu List",
+                "id": _p + "menulist"
+              }, null, 4)
+              }
+              ], caption, null, null, null, m, {})
+              }
         if (conn.temamenu.id === 1) {
             await conn.reply(
                 m.chat,
