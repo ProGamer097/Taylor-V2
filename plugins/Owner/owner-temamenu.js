@@ -4,9 +4,10 @@ let handler = async (m, {
     text
 }) => {
     conn.temamenu = conn.temamenu ? conn.temamenu : {
-        id: 1
+        id: 0
     }
     let themes = {
+    0: 'Buttons',
         1: 'Normal',
         2: 'AdReply Small',
         3: 'AdReply Large',
