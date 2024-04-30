@@ -6,6 +6,7 @@ import {
     xpRange
 } from '../../lib/levelling.js'
 import PhoneNumber from 'awesome-phonenumber'
+import fetch from 'node-fetch'
 import {
     ImageCanvas
 } from "../../lib/welcome.js";
@@ -1054,9 +1055,9 @@ const readMore = more.repeat(4201)
 
 async function topImage(data, img) {
     try {
-        const captcha = await ImageCanvas(img, "Top 1: " + data[0].tag, "Money: " + data[0].score);
+        const captcha = ImageCanvas(img, "Top 1: " + data[0].tag, "Money: " + data[0].score);
         const res = await fetch(captcha);
-        const topBuffer = Buffer.from(await res.arrayBuffer());
+        const topBuffer = (await res.arrayBuffer());
 
         return topBuffer;
     } catch (error) {

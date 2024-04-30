@@ -7,7 +7,7 @@ import {
 import {
     ImageCanvas
 } from "../../lib/welcome.js";
-
+import fetch from 'node-fetch';
 const checkUser = (id, adminList) => {
     const admin = adminList.find((participant) => participant.id === id)?.admin;
     return admin === 'superadmin' ? 'Super Admin' : admin === 'admin' ? 'Admin' : 'Member';
@@ -17,9 +17,9 @@ const potongString = (str) => str.length <= 80 ? str : str.slice(0, 80);
 
 async function profileImage(url, name, hasilPotong) {
     try {
-        const captcha = await ImageCanvas(url, name, hasilPotong);
+        const captcha = ImageCanvas(url, name, hasilPotong);
         const res = await fetch(captcha);
-        const profileBuffer = Buffer.from(await res.arrayBuffer());
+        const profileBuffer = (await res.arrayBuffer());
         return profileBuffer;
     } catch (error) {
         console.error("An error occurred:", error);
