@@ -170,9 +170,10 @@ async function loadConfig() {
         global.multiplier = 69
 
         /*Pesan*/
-        global.eror = "_*`💤 Something went wrong!`*_";
-        global.wait = "_*`🕚 Please wait...!`*_";
-        global.render = "_*`📍 Rendering!`*_";
+        global.error = "_*`Bot error ❌`*_";
+        global.wait = "_*`Please wait ⏳`*_";
+        global.render = "_*`Rendering 📍`*_";
+
         global.webs = "https://s.id/Cerdasin62"
         global.gcwangsaf = "https://chat.whatsapp.com/LqJoQr4IdBLAXsxd1PkNph"
 
